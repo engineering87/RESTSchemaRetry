@@ -68,7 +68,7 @@ namespace RESTSchemaRetry
             var response = restApi.Post<T>(objectToPost);
 
             // check if the status code is transient
-            if (retryEngine.IsTransient(response))
+            if (!retryEngine.IsTransient(response))
                 return response;
 
             while (response.StatusCode != HttpStatusCode.Accepted)
@@ -100,7 +100,7 @@ namespace RESTSchemaRetry
             var response = restApi.Get<T>();
 
             // check if the status code is transient
-            if (retryEngine.IsTransient(response))
+            if (!retryEngine.IsTransient(response))
                 return response;
 
             while (response.StatusCode != HttpStatusCode.Accepted)
@@ -134,7 +134,7 @@ namespace RESTSchemaRetry
             var response = restApi.Get<T>(paramName, paramValue);
 
             // check if the status code is transient
-            if (retryEngine.IsTransient(response))
+            if (!retryEngine.IsTransient(response))
                 return response;
 
             while (response.StatusCode != HttpStatusCode.Accepted)
@@ -167,7 +167,7 @@ namespace RESTSchemaRetry
             var response = restApi.Get<T>(paramsKeyValue);
 
             // check if the status code is transient
-            if (retryEngine.IsTransient(response))
+            if (!retryEngine.IsTransient(response))
                 return response;
 
             while (response.StatusCode != HttpStatusCode.Accepted)
