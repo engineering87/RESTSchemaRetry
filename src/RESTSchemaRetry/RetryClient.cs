@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading;
+using System.Threading.Tasks;
 using RESTSchemaRetry.Enum;
 
 namespace RESTSchemaRetry
@@ -13,6 +14,7 @@ namespace RESTSchemaRetry
     public class RetryClient
     {
         private readonly RestApi restApi;
+        private readonly RetryEngine retryEngine;
         public int RetryNumber { get; set; }
         public TimeSpan RetryDelay { get; set; }
         /// <summary>
@@ -29,6 +31,7 @@ namespace RESTSchemaRetry
         public RetryClient(string baseUrl, string resource)
         {
             restApi = new RestApi(baseUrl, resource);
+            retryEngine = new RetryEngine();
             // default value: max 3 retry every 5 seconds
             this.RetryNumber = 3;
             this.RetryDelay = new TimeSpan(0,0,0, 5);
@@ -38,6 +41,7 @@ namespace RESTSchemaRetry
         public RetryClient(string baseUrl, string resource, int retryNumber, TimeSpan retryDelay)
         {
             restApi = new RestApi(baseUrl, resource);
+            retryEngine = new RetryEngine();
             this.RetryDelay = retryDelay;
             this.RetryNumber = retryNumber;
             this.DelayType = DelayTypes.LINEAR;
@@ -46,6 +50,7 @@ namespace RESTSchemaRetry
         public RetryClient(string baseUrl, string resource, int retryNumber, int retryDelayMs)
         {
             restApi = new RestApi(baseUrl, resource);
+            retryEngine = new RetryEngine();
             this.RetryDelay = new TimeSpan(0,0,0,0,retryDelayMs);
             this.RetryNumber = retryNumber;
             this.DelayType = DelayTypes.LINEAR;
@@ -62,8 +67,8 @@ namespace RESTSchemaRetry
             var retry = 0;
             var response = restApi.Post<T>(objectToPost);
 
-            // skip the NotFound status
-            if (response.StatusCode == HttpStatusCode.NotFound)
+            // check if the status code is transient
+            if (retryEngine.IsTransient(response))
                 return response;
 
             while (response.StatusCode != HttpStatusCode.Accepted)
@@ -94,8 +99,8 @@ namespace RESTSchemaRetry
             var retry = 0;
             var response = restApi.Get<T>();
 
-            // skip the NotFound status
-            if (response.StatusCode == HttpStatusCode.NotFound)
+            // check if the status code is transient
+            if (retryEngine.IsTransient(response))
                 return response;
 
             while (response.StatusCode != HttpStatusCode.Accepted)
@@ -128,8 +133,8 @@ namespace RESTSchemaRetry
             var retry = 0;
             var response = restApi.Get<T>(paramName, paramValue);
 
-            // skip the NotFound status
-            if (response.StatusCode == HttpStatusCode.NotFound)
+            // check if the status code is transient
+            if (retryEngine.IsTransient(response))
                 return response;
 
             while (response.StatusCode != HttpStatusCode.Accepted)
@@ -161,8 +166,8 @@ namespace RESTSchemaRetry
             var retry = 0;
             var response = restApi.Get<T>(paramsKeyValue);
 
-            // skip the NotFound status
-            if (response.StatusCode == HttpStatusCode.NotFound)
+            // check if the status code is transient
+            if (retryEngine.IsTransient(response))
                 return response;
 
             while (response.StatusCode != HttpStatusCode.Accepted)

@@ -4,10 +4,13 @@ A Schema-Retry can handle transient failures when it tries to connect to a servi
 
 ### How it works
 RESTSchemaRetry implements a simple after delay retry schema, managing communication timeouts or service error transparently to the application.
-The retry schema check the HTTP response code to decide if it is possible to retry or not.
+The retry schema check the HTTP response code to decide if the error is transient or not.
 
 ### Retry-Schema
 ![Alt text](/wiki/img/Retry-Schema.png?raw=true)
+
+In this example, the application invokes an operation on a hosted service. The request fails and the service responds with status code 500.
+The RESTSchemaRetry wrap all the retry transparently to the application.
 
 ### How to use it
 

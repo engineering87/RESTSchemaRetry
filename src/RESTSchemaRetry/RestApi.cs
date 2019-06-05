@@ -3,10 +3,11 @@ using RESTSchemaRetry.Exceptions;
 using RestSharp;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 
 namespace RESTSchemaRetry
 {
-    public class RestApi
+    public sealed class RestApi
     {
         public string BaseUrl { get; }
         public string Resource { get; }
@@ -28,12 +29,22 @@ namespace RESTSchemaRetry
                 throw new ArgumentNullException(Messages.RESOURCE_INVALID);
         }
 
-        public IRestResponse Post<T>(object objectToPost) where T : new()
+        private void CheckObject(object objectBody)
         {
-            if (!objectToPost.GetType().IsSerializable)
+            if (objectBody == null)
+            {
+                throw new SerializationException(Messages.OBJECT_NULL);
+            }
+
+            if (!objectBody.GetType().IsSerializable)
             {
                 throw new SerializationException(Messages.SERIALIZATION_ERROR);
             }
+        }
+
+        public IRestResponse Post<T>(object objectToPost) where T : new()
+        {
+            CheckObject(objectToPost);
 
             var client = new RestClient(this.BaseUrl);
             var request = new RestRequest(this.Resource, Method.POST);
@@ -43,9 +54,26 @@ namespace RESTSchemaRetry
             return client.Execute<T>(request);
         }
 
+        public async Task<IRestResponse> PostAsync<T>(object objectToPost) where T : new()
+        {
+            CheckObject(objectToPost);
+
+            var client = new RestClient(this.BaseUrl);
+            var request = new RestRequest(this.Resource, Method.POST);
+
+            request.AddObject(objectToPost);
+
+            return await client.ExecuteTaskAsync<T>(request);
+        }
+
         public IRestResponse Get<T>() where T : new()
         {
             return Get<T>(string.Empty, string.Empty);
+        }
+
+        public Task<IRestResponse> GetAsync<T>() where T : new()
+        {
+            return GetAsync<T>(string.Empty, string.Empty);
         }
 
         public IRestResponse Get<T>(string paramName, string paramValue) where T : new()
@@ -59,6 +87,19 @@ namespace RESTSchemaRetry
             }
 
             return client.Execute<T>(request);
+        }
+
+        public async Task<IRestResponse> GetAsync<T>(string paramName, string paramValue) where T : new()
+        {
+            var client = new RestClient(this.BaseUrl);
+            var request = new RestRequest(this.Resource, Method.GET);
+
+            if (!string.IsNullOrEmpty(paramName))
+            {
+                request.AddParameter(paramName, paramValue);
+            }
+
+            return await client.ExecuteTaskAsync<T>(request);
         }
 
         public IRestResponse Get<T>(Dictionary<string, string> paramsKeyValue) where T : new()
