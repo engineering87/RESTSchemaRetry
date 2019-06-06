@@ -25,5 +25,33 @@ namespace UnitTestProject
             Assert.IsNotNull(response);
             Assert.IsNotNull(response.StatusCode);
         }
+
+        [TestMethod]
+        public void TestTransientHttpCheck()
+        {
+            var retryEngine = new RetryEngine();
+
+            var isTransient = retryEngine.IsTransient(HttpStatusCode.BadRequest);
+            Assert.IsFalse(isTransient);
+            isTransient = retryEngine.IsTransient(HttpStatusCode.GatewayTimeout);
+            Assert.IsTrue(isTransient);
+        }
+
+        [TestMethod]
+        public void TestTransientResponseCheck()
+        {
+            var retryEngine = new RetryEngine();
+
+            var response = new RestResponse()
+            {
+                StatusCode = HttpStatusCode.BadRequest
+            };
+
+            var isTransient = retryEngine.IsTransient(response);
+            Assert.IsFalse(isTransient);
+            response.StatusCode = HttpStatusCode.GatewayTimeout;
+            isTransient = retryEngine.IsTransient(response);
+            Assert.IsTrue(isTransient);
+        }
     }
 }
