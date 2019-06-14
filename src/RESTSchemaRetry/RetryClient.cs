@@ -187,5 +187,71 @@ namespace RESTSchemaRetry
 
             return response;
         }
+
+        /// <summary>
+        /// Execute PUT
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="objectToPut"></param>
+        /// <returns></returns>
+        public IRestResponse Put<T>(object objectToPut) where T : new()
+        {
+            var retry = 0;
+            var response = restApi.Put<T>(objectToPut);
+
+            // check if the status code is transient
+            if (!retryEngine.IsTransient(response))
+                return response;
+
+            while (response.StatusCode != HttpStatusCode.Accepted)
+            {
+                if (retry <= this.RetryNumber)
+                {
+                    Thread.Sleep(this.RetryDelay);
+
+                    response = restApi.Put<T>(objectToPut);
+                    retry++;
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Execute DELETE 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="objectToDelete"></param>
+        /// <returns></returns>
+        public IRestResponse Delete<T>(object objectToDelete) where T : new()
+        {
+            var retry = 0;
+            var response = restApi.Delete<T>(objectToDelete);
+
+            // check if the status code is transient
+            if (!retryEngine.IsTransient(response))
+                return response;
+
+            while (response.StatusCode != HttpStatusCode.Accepted)
+            {
+                if (retry <= this.RetryNumber)
+                {
+                    Thread.Sleep(this.RetryDelay);
+
+                    response = restApi.Delete<T>(objectToDelete);
+                    retry++;
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            return response;
+        }
     }
 }

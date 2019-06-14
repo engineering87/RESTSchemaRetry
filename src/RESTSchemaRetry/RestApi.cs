@@ -42,6 +42,8 @@ namespace RESTSchemaRetry
             }
         }
 
+        #region POST
+
         public IRestResponse Post<T>(object objectToPost) where T : new()
         {
             CheckObject(objectToPost);
@@ -65,6 +67,10 @@ namespace RESTSchemaRetry
 
             return await client.ExecuteTaskAsync<T>(request);
         }
+
+        #endregion
+
+        #region GET
 
         public IRestResponse Get<T>() where T : new()
         {
@@ -117,5 +123,63 @@ namespace RESTSchemaRetry
 
             return client.Execute<T>(request);
         }
+
+        #endregion
+
+        #region PUT
+
+        public IRestResponse Put<T>(object objectToPut) where T : new()
+        {
+            CheckObject(objectToPut);
+
+            var client = new RestClient(this.BaseUrl);
+            var request = new RestRequest(this.Resource, Method.PUT);
+
+            request.AddObject(objectToPut);
+
+            return client.Execute<T>(request);
+        }
+
+        public async Task<IRestResponse> PutAsync<T>(object objectToPut) where T : new()
+        {
+            CheckObject(objectToPut);
+
+            var client = new RestClient(this.BaseUrl);
+            var request = new RestRequest(this.Resource, Method.PUT);
+
+            request.AddObject(objectToPut);
+
+            return await client.ExecuteTaskAsync<T>(request);
+        }
+
+        #endregion
+
+        #region DELETE
+
+        public IRestResponse Delete<T>(object objectToDelete) where T : new()
+        {
+            CheckObject(objectToDelete);
+
+            var client = new RestClient(this.BaseUrl);
+            var request = new RestRequest(this.Resource, Method.DELETE);
+
+            request.AddObject(objectToDelete);
+
+            return client.Execute<T>(request);
+        }
+
+        public async Task<IRestResponse> DeleteAsync<T>(object objectToDelete) where T : new()
+        {
+            CheckObject(objectToDelete);
+
+            var client = new RestClient(this.BaseUrl);
+            var request = new RestRequest(this.Resource, Method.DELETE);
+
+            request.AddObject(objectToDelete);
+
+            return await client.ExecuteTaskAsync<T>(request);
+        }
+
+        #endregion
     }
 }

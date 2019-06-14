@@ -1,5 +1,7 @@
+using System.Net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RESTSchemaRetry;
+using RestSharp;
 
 namespace UnitTestProject
 {
