@@ -7,7 +7,7 @@ RESTSchemaRetry implements a simple after delay retry schema, managing communica
 The retry schema check the HTTP response code to decide if the error is transient or not.
 
 ### Retry-Schema
-![ScreenShot]("https://github.com/engineering87/RESTSchemaRetry/tree/master/wiki/img/Retry-Schema.png")
+![Alt text](/wiki/img/Retry-Schema.png?raw=true)
 
 In this example, the application invokes an operation on a hosted service. The request fails and the service responds with status code 500.
 The RESTSchemaRetry wrap all the retry transparently to the application.
