@@ -8,7 +8,7 @@ The retry schema check the HTTP response code to decide if the error is transien
 
 ### Retry-Schema
 <p align="center">
-  <img src="https://github.com/engineering87/RESTSchemaRetry/tree/master/wiki/img/Retry-Schema.png?raw=true" alt="Example"/>
+  ![ScreenShot](<img src="https://github.com/engineering87/RESTSchemaRetry/tree/master/wiki/img/Retry-Schema.png?raw=true" alt="Example"/>)
 </p>
 
 In this example, the application invokes an operation on a hosted service. The request fails and the service responds with status code 500.
