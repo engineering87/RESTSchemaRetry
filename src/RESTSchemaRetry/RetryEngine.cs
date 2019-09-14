@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿// (c) 2019 engineering87
+// This code is licensed under MIT license (see LICENSE.txt for details)
+using System.Linq;
 using System.Net;
 using RestSharp;
 

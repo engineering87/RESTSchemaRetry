@@ -1,4 +1,6 @@
-﻿using System;
+﻿// (c) 2019 engineering87
+// This code is licensed under MIT license (see LICENSE.txt for details)
+using System;
 using RESTSchemaRetry.Exceptions;
 using RestSharp;
 using System.Collections.Generic;
@@ -20,25 +22,25 @@ namespace RESTSchemaRetry
             this.Resource = resource;
         }
 
-        private void CheckConfiguration(string baseUrl, string resource)
+        private static void CheckConfiguration(string baseUrl, string resource)
         {
             if (string.IsNullOrEmpty(baseUrl))
-                throw new ArgumentNullException(Messages.BASEURL_INVALID);
+                throw new ArgumentNullException(Messages.BaseUrlInvalid);
 
             if (string.IsNullOrEmpty(resource))
-                throw new ArgumentNullException(Messages.RESOURCE_INVALID);
+                throw new ArgumentNullException(Messages.ResourceInvalid);
         }
 
-        private void CheckObject(object objectBody)
+        private static void CheckObject(object objectBody)
         {
             if (objectBody == null)
             {
-                throw new SerializationException(Messages.OBJECT_NULL);
+                throw new SerializationException(Messages.ObjectNull);
             }
 
             if (!objectBody.GetType().IsSerializable)
             {
-                throw new SerializationException(Messages.SERIALIZATION_ERROR);
+                throw new SerializationException(Messages.SerializationError);
             }
         }
 
@@ -49,9 +51,12 @@ namespace RESTSchemaRetry
             CheckObject(objectToPost);
 
             var client = new RestClient(this.BaseUrl);
-            var request = new RestRequest(this.Resource, Method.POST);
+            var request = new RestRequest(this.Resource, Method.POST)
+            {
+                RequestFormat = DataFormat.Json
+            };
 
-            request.AddObject(objectToPost);
+            request.AddJsonBody(objectToPost);
 
             return client.Execute<T>(request);
         }
@@ -61,9 +66,12 @@ namespace RESTSchemaRetry
             CheckObject(objectToPost);
 
             var client = new RestClient(this.BaseUrl);
-            var request = new RestRequest(this.Resource, Method.POST);
+            var request = new RestRequest(this.Resource, Method.POST)
+            {
+                RequestFormat = DataFormat.Json
+            };
 
-            request.AddObject(objectToPost);
+            request.AddJsonBody(objectToPost);
 
             return await client.ExecuteTaskAsync<T>(request);
         }
@@ -133,9 +141,12 @@ namespace RESTSchemaRetry
             CheckObject(objectToPut);
 
             var client = new RestClient(this.BaseUrl);
-            var request = new RestRequest(this.Resource, Method.PUT);
+            var request = new RestRequest(this.Resource, Method.PUT)
+            {
+                RequestFormat = DataFormat.Json
+            };
 
-            request.AddObject(objectToPut);
+            request.AddJsonBody(objectToPut);
 
             return client.Execute<T>(request);
         }
@@ -145,9 +156,12 @@ namespace RESTSchemaRetry
             CheckObject(objectToPut);
 
             var client = new RestClient(this.BaseUrl);
-            var request = new RestRequest(this.Resource, Method.PUT);
+            var request = new RestRequest(this.Resource, Method.PUT)
+            {
+                RequestFormat = DataFormat.Json
+            };
 
-            request.AddObject(objectToPut);
+            request.AddJsonBody(objectToPut);
 
             return await client.ExecuteTaskAsync<T>(request);
         }
@@ -161,9 +175,12 @@ namespace RESTSchemaRetry
             CheckObject(objectToDelete);
 
             var client = new RestClient(this.BaseUrl);
-            var request = new RestRequest(this.Resource, Method.DELETE);
+            var request = new RestRequest(this.Resource, Method.DELETE)
+            {
+                RequestFormat = DataFormat.Json
+            };
 
-            request.AddObject(objectToDelete);
+            request.AddJsonBody(objectToDelete);
 
             return client.Execute<T>(request);
         }
@@ -173,9 +190,12 @@ namespace RESTSchemaRetry
             CheckObject(objectToDelete);
 
             var client = new RestClient(this.BaseUrl);
-            var request = new RestRequest(this.Resource, Method.DELETE);
+            var request = new RestRequest(this.Resource, Method.DELETE)
+            {
+                RequestFormat = DataFormat.Json
+            };
 
-            request.AddObject(objectToDelete);
+            request.AddJsonBody(objectToDelete);
 
             return await client.ExecuteTaskAsync<T>(request);
         }
