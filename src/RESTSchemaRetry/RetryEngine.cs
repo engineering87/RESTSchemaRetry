@@ -1,4 +1,4 @@
-﻿// (c) 2019 engineering87
+﻿// (c) 2019 Francesco Del Re <francesco.delre.87@gmail.com>
 // This code is licensed under MIT license (see LICENSE.txt for details)
 using System.Linq;
 using System.Net;
@@ -6,7 +6,7 @@ using RestSharp;
 
 namespace RESTSchemaRetry
 {
-    public class RetryEngine
+    public sealed class RetryEngine
     {
         /// <summary>
         /// Determine if the response status code is transient

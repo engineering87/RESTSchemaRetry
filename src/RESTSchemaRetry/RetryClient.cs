@@ -1,4 +1,4 @@
-﻿// (c) 2019 engineering87
+﻿// (c) 2019 Francesco Del Re <francesco.delre.87@gmail.com>
 // This code is licensed under MIT license (see LICENSE.txt for details)
 using RESTSchemaRetry.Enum;
 using RestSharp;
@@ -12,7 +12,7 @@ namespace RESTSchemaRetry
     /// <summary>
     /// ApiClient with Schema-Retry implementation
     /// </summary>
-    public class RetryClient
+    public sealed class RetryClient
     {
         private readonly RestApi _restApi;
         private readonly RetryEngine _retryEngine;
@@ -23,11 +23,13 @@ namespace RESTSchemaRetry
         /// </summary>
         public BackoffTypes DelayType { get; set; }
 
-        private const int DEFAULT_RETRY = 3;
-        private const int DEFAULT_DELAY = 5;
+        private const int DefaultRetry = 3;
+        private const int DefaultDelay = 5;
+
+        #region Constructors
 
         /// <summary>
-        /// Default schema-retry configuration
+        /// Create an instance of the RetryClient
         /// </summary>
         /// <param name="baseUrl"></param>
         /// <param name="resource"></param>
@@ -35,21 +37,33 @@ namespace RESTSchemaRetry
         {
             _restApi = new RestApi(baseUrl, resource);
             _retryEngine = new RetryEngine();
-            // default value: max 3 retry every 5 seconds
-            this.RetryNumber = DEFAULT_RETRY;
-            this.RetryDelay = new TimeSpan(0,0,0, DEFAULT_DELAY);
+            this.RetryNumber = DefaultRetry;
+            this.RetryDelay = new TimeSpan(0,0,0, DefaultDelay);
             this.DelayType = BackoffTypes.Linear;
         }
 
+        /// <summary>
+        /// Create an instance of the RetryClient
+        /// </summary>
+        /// <param name="baseUrl"></param>
+        /// <param name="resource"></param>
+        /// <param name="backoffTypes"></param>
         public RetryClient(string baseUrl, string resource, BackoffTypes backoffTypes)
         {
             _restApi = new RestApi(baseUrl, resource);
             _retryEngine = new RetryEngine();
-            this.RetryNumber = DEFAULT_RETRY;
-            this.RetryDelay = new TimeSpan(0, 0, 0, DEFAULT_DELAY);
+            this.RetryNumber = DefaultRetry;
+            this.RetryDelay = new TimeSpan(0, 0, 0, DefaultDelay);
             this.DelayType = backoffTypes;
         }
 
+        /// <summary>
+        /// Create an instance of the RetryClient
+        /// </summary>
+        /// <param name="baseUrl"></param>
+        /// <param name="resource"></param>
+        /// <param name="retryNumber"></param>
+        /// <param name="retryDelayMs"></param>
         public RetryClient(string baseUrl, string resource, int retryNumber, int retryDelayMs)
         {
             _restApi = new RestApi(baseUrl, resource);
@@ -59,6 +73,13 @@ namespace RESTSchemaRetry
             this.DelayType = BackoffTypes.Linear;
         }
 
+        /// <summary>
+        /// Create an instance of the RetryClient
+        /// </summary>
+        /// <param name="baseUrl"></param>
+        /// <param name="resource"></param>
+        /// <param name="retryNumber"></param>
+        /// <param name="retryDelay"></param>
         public RetryClient(string baseUrl, string resource, int retryNumber, TimeSpan retryDelay)
         {
             _restApi = new RestApi(baseUrl, resource);
@@ -67,6 +88,8 @@ namespace RESTSchemaRetry
             this.RetryNumber = retryNumber >= 0 ? retryNumber : 0;
             this.DelayType = BackoffTypes.Linear;
         }
+
+        #endregion
 
         /// <summary>
         /// Execute POST
@@ -79,7 +102,6 @@ namespace RESTSchemaRetry
             var retry = 0;
             var response = _restApi.Post<T>(objectToPost);
 
-            // check if the status code is transient
             if (!_retryEngine.IsTransient(response))
                 return response;
 
@@ -111,7 +133,6 @@ namespace RESTSchemaRetry
             var retry = 0;
             var response = _restApi.Get<T>();
 
-            // check if the status code is transient
             if (!_retryEngine.IsTransient(response))
                 return response;
 
@@ -145,7 +166,6 @@ namespace RESTSchemaRetry
             var retry = 0;
             var response = _restApi.Get<T>(paramName, paramValue);
 
-            // check if the status code is transient
             if (!_retryEngine.IsTransient(response))
                 return response;
 
@@ -178,7 +198,6 @@ namespace RESTSchemaRetry
             var retry = 0;
             var response = _restApi.Get<T>(paramsKeyValue);
 
-            // check if the status code is transient
             if (!_retryEngine.IsTransient(response))
                 return response;
 
@@ -211,7 +230,6 @@ namespace RESTSchemaRetry
             var retry = 0;
             var response = _restApi.Put<T>(objectToPut);
 
-            // check if the status code is transient
             if (!_retryEngine.IsTransient(response))
                 return response;
 
@@ -244,7 +262,6 @@ namespace RESTSchemaRetry
             var retry = 0;
             var response = _restApi.Delete<T>(objectToDelete);
 
-            // check if the status code is transient
             if (!_retryEngine.IsTransient(response))
                 return response;
 

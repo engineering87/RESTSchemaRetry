@@ -1,4 +1,4 @@
-﻿// (c) 2019 engineering87
+﻿// (c) 2019 Francesco Del Re <francesco.delre.87@gmail.com>
 // This code is licensed under MIT license (see LICENSE.txt for details)
 using System;
 using RESTSchemaRetry.Exceptions;
@@ -123,9 +123,9 @@ namespace RESTSchemaRetry
 
             if (paramsKeyValue != null)
             {
-                foreach (var param in paramsKeyValue)
+                foreach (var (key, value) in paramsKeyValue)
                 {
-                    request.AddParameter(param.Key, param.Value);
+                    request.AddParameter(key, value);
                 }
             }
 
