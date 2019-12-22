@@ -29,6 +29,11 @@ var response = retryClient.Post<T>(objectToPost);
 
 RESTSchemaRetry uses the RestSharp library to execute the web requests.
 
+### NuGet Package
+
+The library is available on NuGet packetmanager.
+https://www.nuget.org/packages/RESTSchemaRetry/
+
 ### RestSharp Reference
 https://github.com/restsharp/RestSharp
 
