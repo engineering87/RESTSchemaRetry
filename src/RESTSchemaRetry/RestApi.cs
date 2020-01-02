@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 
 namespace RESTSchemaRetry
 {
+    /// <summary>
+    /// RestSharp wrapper class
+    /// </summary>
     public sealed class RestApi
     {
         public string BaseUrl { get; }
@@ -21,6 +24,8 @@ namespace RESTSchemaRetry
             this.BaseUrl = baseUrl;
             this.Resource = resource;
         }
+
+        #region Checks
 
         private static void CheckConfiguration(string baseUrl, string resource)
         {
@@ -43,6 +48,8 @@ namespace RESTSchemaRetry
                 throw new SerializationException(Messages.SerializationError);
             }
         }
+
+        #endregion
 
         #region POST
 

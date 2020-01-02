@@ -20,7 +20,7 @@ namespace UnitTestProject
         }
 
         [TestMethod]
-        public void TestClient()
+        public void TestClientGet()
         {
             var client = new RetryClient("http://example.com/", "resource");
 
@@ -33,28 +33,24 @@ namespace UnitTestProject
         [TestMethod]
         public void TestTransientHttpCheck()
         {
-            var retryEngine = new RetryEngine();
-
-            var isTransient = retryEngine.IsTransient(HttpStatusCode.BadRequest);
+            var isTransient = RetryEngine.Instance.IsTransient(HttpStatusCode.BadRequest);
             Assert.IsFalse(isTransient);
-            isTransient = retryEngine.IsTransient(HttpStatusCode.GatewayTimeout);
+            isTransient = RetryEngine.Instance.IsTransient(HttpStatusCode.GatewayTimeout);
             Assert.IsTrue(isTransient);
         }
 
         [TestMethod]
         public void TestTransientResponseCheck()
         {
-            var retryEngine = new RetryEngine();
-
             var response = new RestResponse()
             {
                 StatusCode = HttpStatusCode.BadRequest
             };
 
-            var isTransient = retryEngine.IsTransient(response);
+            var isTransient = RetryEngine.Instance.IsTransient(response);
             Assert.IsFalse(isTransient);
             response.StatusCode = HttpStatusCode.GatewayTimeout;
-            isTransient = retryEngine.IsTransient(response);
+            isTransient = RetryEngine.Instance.IsTransient(response);
             Assert.IsTrue(isTransient);
         }
     }

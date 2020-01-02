@@ -8,19 +8,57 @@ namespace RESTSchemaRetry
 {
     public sealed class RetryEngine
     {
+        private static RetryEngine instance;
+        private static readonly object padlock = new object();
+
         /// <summary>
-        /// Determine if the response status code is transient
+        /// The Http status codes deemed non-transient
+        /// </summary>
+        private readonly HttpStatusCode[] httpStatusCode;
+
+        private RetryEngine()
+        {
+            httpStatusCode = new[] {
+                    HttpStatusCode.BadRequest,
+                    HttpStatusCode.HttpVersionNotSupported,
+                    HttpStatusCode.LengthRequired,
+                    HttpStatusCode.UnsupportedMediaType,
+                    HttpStatusCode.ProxyAuthenticationRequired,
+                    HttpStatusCode.Gone,
+                    HttpStatusCode.LengthRequired,
+                    HttpStatusCode.PreconditionFailed,
+                    HttpStatusCode.RequestEntityTooLarge,
+                    HttpStatusCode.RequestUriTooLong,
+                    HttpStatusCode.RequestedRangeNotSatisfiable
+            };
+        }
+
+        public static RetryEngine Instance
+        {
+            get
+            {
+                if (instance == null)
+                {
+                    lock (padlock)
+                    {
+                        if (instance == null)
+                        {
+                            instance = new RetryEngine();
+                        }
+                    }
+                }
+                return instance;
+            }
+        }
+
+        /// <summary>
+        /// Determine if the response http status code is transient
         /// </summary>
         /// <param name="statusCode"></param>
         /// <returns></returns>
         public bool IsTransient(HttpStatusCode statusCode)
         {
-            return !new[] {
-                    HttpStatusCode.BadRequest,
-                    HttpStatusCode.HttpVersionNotSupported,
-                    HttpStatusCode.LengthRequired,
-                    HttpStatusCode.UnsupportedMediaType
-            }.Contains(statusCode);
+            return !httpStatusCode.Contains(statusCode);
         }
 
         /// <summary>
