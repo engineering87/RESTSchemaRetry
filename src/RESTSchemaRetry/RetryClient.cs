@@ -142,13 +142,13 @@ namespace RESTSchemaRetry
         /// <param name="objectToPost"></param>
         /// <returns></returns>
         public IRestResponse Post<T>(object objectToPost) where T : new()
-        {
-            var retry = 0;
+        {       
             var response = _restApi.Post<T>(objectToPost);
 
             if (!RetryEngine.Instance.IsTransient(response))
                 return response;
 
+            var retry = 0;
             while (response.StatusCode != HttpStatusCode.Accepted)
             {
                 if (retry <= this.RetryNumber)
@@ -174,18 +174,18 @@ namespace RESTSchemaRetry
         /// <param name="objectToPost"></param>
         /// <returns></returns>
         public async Task<IRestResponse> PostAsync<T>(object objectToPost) where T : new()
-        {
-            var retry = 0;
+        {          
             var response = await _restApi.PostAsync<T>(objectToPost);
 
             if (!RetryEngine.Instance.IsTransient(response))
                 return response;
 
+            var retry = 0;
             while (response.StatusCode != HttpStatusCode.Accepted)
             {
                 if (retry <= this.RetryNumber)
                 {
-                    Thread.Sleep(GetDelay(retry));
+                    await Task.Delay(GetDelay(retry));
 
                     response = await _restApi.PostAsync<T>(objectToPost);
                     retry++;
@@ -206,12 +206,12 @@ namespace RESTSchemaRetry
         /// <returns></returns>
         public IRestResponse Get<T>() where T : new()
         {
-            var retry = 0;
             var response = _restApi.Get<T>();
 
             if (!RetryEngine.Instance.IsTransient(response))
                 return response;
 
+            var retry = 0;
             while (response.StatusCode != HttpStatusCode.Accepted)
             {
                 if (retry <= this.RetryNumber)
@@ -237,17 +237,17 @@ namespace RESTSchemaRetry
         /// <returns></returns>
         public async Task<IRestResponse> GetAsync<T>() where T : new()
         {
-            var retry = 0;
             var response = await _restApi.GetAsync<T>();
 
             if (!RetryEngine.Instance.IsTransient(response))
                 return response;
 
+            var retry = 0;
             while (response.StatusCode != HttpStatusCode.Accepted)
             {
                 if (retry <= this.RetryNumber)
                 {
-                    Thread.Sleep(GetDelay(retry));
+                    await Task.Delay(GetDelay(retry));
 
                     response = await _restApi.GetAsync<T>();
                     retry++;
@@ -270,12 +270,12 @@ namespace RESTSchemaRetry
         /// <returns></returns>
         public IRestResponse Get<T>(string paramName, string paramValue) where T : new()
         {
-            var retry = 0;
             var response = _restApi.Get<T>(paramName, paramValue);
 
             if (!RetryEngine.Instance.IsTransient(response))
                 return response;
 
+            var retry = 0;
             while (response.StatusCode != HttpStatusCode.Accepted)
             {
                 if (retry <= this.RetryNumber)
@@ -303,17 +303,17 @@ namespace RESTSchemaRetry
         /// <returns></returns>
         public async Task<IRestResponse> GetAsync<T>(string paramName, string paramValue) where T : new()
         {
-            var retry = 0;
             var response = await _restApi.GetAsync<T>(paramName, paramValue);
 
             if (!RetryEngine.Instance.IsTransient(response))
                 return response;
 
+            var retry = 0;
             while (response.StatusCode != HttpStatusCode.Accepted)
             {
                 if (retry <= this.RetryNumber)
                 {
-                    Thread.Sleep(GetDelay(retry));
+                    await Task.Delay(GetDelay(retry));
 
                     response = await _restApi.GetAsync<T>(paramName, paramValue);
                     retry++;
@@ -335,12 +335,12 @@ namespace RESTSchemaRetry
         /// <returns></returns>
         public IRestResponse Get<T>(Dictionary<string, string> paramsKeyValue) where T : new()
         {
-            var retry = 0;
             var response = _restApi.Get<T>(paramsKeyValue);
 
             if (!RetryEngine.Instance.IsTransient(response))
                 return response;
 
+            var retry = 0;
             while (response.StatusCode != HttpStatusCode.Accepted)
             {
                 if (retry <= this.RetryNumber)
@@ -367,12 +367,12 @@ namespace RESTSchemaRetry
         /// <returns></returns>
         public IRestResponse Put<T>(object objectToPut) where T : new()
         {
-            var retry = 0;
             var response = _restApi.Put<T>(objectToPut);
 
             if (!RetryEngine.Instance.IsTransient(response))
                 return response;
 
+            var retry = 0;
             while (response.StatusCode != HttpStatusCode.Accepted)
             {
                 if (retry <= this.RetryNumber)
@@ -399,17 +399,17 @@ namespace RESTSchemaRetry
         /// <returns></returns>
         public async Task<IRestResponse> PutAsync<T>(object objectToPut) where T : new()
         {
-            var retry = 0;
             var response = await _restApi.PutAsync<T>(objectToPut);
 
             if (!RetryEngine.Instance.IsTransient(response))
                 return response;
 
+            var retry = 0;
             while (response.StatusCode != HttpStatusCode.Accepted)
             {
                 if (retry <= this.RetryNumber)
                 {
-                    Thread.Sleep(GetDelay(retry));
+                    await Task.Delay(GetDelay(retry));
 
                     response = await _restApi.PutAsync<T>(objectToPut);
                     retry++;
@@ -431,12 +431,12 @@ namespace RESTSchemaRetry
         /// <returns></returns>
         public IRestResponse Delete<T>(object objectToDelete) where T : new()
         {
-            var retry = 0;
             var response = _restApi.Delete<T>(objectToDelete);
 
             if (!RetryEngine.Instance.IsTransient(response))
                 return response;
 
+            var retry = 0;
             while (response.StatusCode != HttpStatusCode.Accepted)
             {
                 if (retry <= this.RetryNumber)
@@ -463,17 +463,17 @@ namespace RESTSchemaRetry
         /// <returns></returns>
         public async Task<IRestResponse> DeleteAsync<T>(object objectToDelete) where T : new()
         {
-            var retry = 0;
             var response = await _restApi.DeleteAsync<T>(objectToDelete);
 
             if (!RetryEngine.Instance.IsTransient(response))
                 return response;
 
+            var retry = 0;
             while (response.StatusCode != HttpStatusCode.Accepted)
             {
                 if (retry <= this.RetryNumber)
                 {
-                    Thread.Sleep(GetDelay(retry));
+                    await Task.Delay(GetDelay(retry));
 
                     response = await _restApi.DeleteAsync<T>(objectToDelete);
                     retry++;
