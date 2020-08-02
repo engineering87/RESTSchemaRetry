@@ -36,8 +36,8 @@ https://www.nuget.org/packages/RESTSchemaRetry/
 
 ### RestSharp Reference
 RESTSchemaRetry uses the **RestSharp** library, which is distributed under Apache 2.0 license.
-Official Project page: https://github.com/restsharp/RestSharp
-License: https://github.com/restsharp/RestSharp/blob/dev/LICENSE.txt
+* [Official Project](https://github.com/restsharp/RestSharp)
+* [License](https://github.com/restsharp/RestSharp/blob/dev/LICENSE.txt)
 
 ### Contributing
 Thank you for considering to help out with the source code!
