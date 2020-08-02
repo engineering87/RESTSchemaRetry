@@ -35,7 +35,9 @@ The library is available on NuGet packetmanager.
 https://www.nuget.org/packages/RESTSchemaRetry/
 
 ### RestSharp Reference
-https://github.com/restsharp/RestSharp
+RESTSchemaRetry uses the **RestSharp** library, which is distributed under Apache 2.0 license.
+Official Project page: https://github.com/restsharp/RestSharp
+License: https://github.com/restsharp/RestSharp/blob/dev/LICENSE.txt
 
 ### Contributing
 Thank you for considering to help out with the source code!
