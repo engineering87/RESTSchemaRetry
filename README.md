@@ -1,3 +1,5 @@
+[![Github license](mit.svg)](https://github.com/engineering87/RESTSchemaRetry/blob/develop/LICENSE)
+
 # RESTSchemaRetry
 RESTSchemaRetry is a C# standard library that implements a simple Schema-Retry pattern in REST services context to improve the stability of the application.
 A Schema-Retry can handle transient failures when it tries to connect to a service or network resource, by transparently retrying a failed operation. 
