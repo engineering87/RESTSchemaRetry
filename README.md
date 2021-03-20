@@ -1,3 +1,5 @@
+[![Github license](mit.svg)](https://github.com/engineering87/RESTSchemaRetry/blob/develop/LICENSE)
+
 # RESTSchemaRetry
 RESTSchemaRetry is a C# standard library that implements a simple Schema-Retry pattern in REST services context to improve the stability of the application.
 A Schema-Retry can handle transient failures when it tries to connect to a service or network resource, by transparently retrying a failed operation. 
@@ -35,7 +37,9 @@ The library is available on NuGet packetmanager.
 https://www.nuget.org/packages/RESTSchemaRetry/
 
 ### RestSharp Reference
-https://github.com/restsharp/RestSharp
+RESTSchemaRetry uses the **RestSharp** library, which is distributed under Apache 2.0 license.
+* [Official Project](https://github.com/restsharp/RestSharp)
+* [License](https://github.com/restsharp/RestSharp/blob/dev/LICENSE.txt)
 
 ### Contributing
 Thank you for considering to help out with the source code!
