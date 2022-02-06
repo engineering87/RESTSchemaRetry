@@ -13,7 +13,7 @@ namespace RESTSchemaRetry
     /// <summary>
     /// REST ApiClient with Schema-Retry implementation
     /// </summary>
-    public sealed class RetryClient
+    public sealed class RetryClient : IRetryClient
     {
         private readonly RestApi _restApi;
 
@@ -141,11 +141,11 @@ namespace RESTSchemaRetry
         /// <typeparam name="T"></typeparam>
         /// <param name="objectToPost"></param>
         /// <returns></returns>
-        public IRestResponse Post<T>(object objectToPost) where T : new()
+        public RestResponse Post<T>(object objectToPost) where T : new()
         {       
             var response = _restApi.Post<T>(objectToPost);
 
-            if (!RetryEngine.Instance.IsTransient(response))
+            if (!RetryEngine.Instance.IsTransient(response) || DelayType == BackoffTypes.NoRetry)
                 return response;
 
             var retry = 0;
@@ -173,11 +173,11 @@ namespace RESTSchemaRetry
         /// <typeparam name="T"></typeparam>
         /// <param name="objectToPost"></param>
         /// <returns></returns>
-        public async Task<IRestResponse> PostAsync<T>(object objectToPost) where T : new()
+        public async Task<RestResponse> PostAsync<T>(object objectToPost) where T : new()
         {          
             var response = await _restApi.PostAsync<T>(objectToPost);
 
-            if (!RetryEngine.Instance.IsTransient(response))
+            if (!RetryEngine.Instance.IsTransient(response) || DelayType == BackoffTypes.NoRetry)
                 return response;
 
             var retry = 0;
@@ -204,11 +204,11 @@ namespace RESTSchemaRetry
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public IRestResponse Get<T>() where T : new()
+        public RestResponse Get<T>() where T : new()
         {
             var response = _restApi.Get<T>();
 
-            if (!RetryEngine.Instance.IsTransient(response))
+            if (!RetryEngine.Instance.IsTransient(response) || DelayType == BackoffTypes.NoRetry)
                 return response;
 
             var retry = 0;
@@ -235,11 +235,11 @@ namespace RESTSchemaRetry
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public async Task<IRestResponse> GetAsync<T>() where T : new()
+        public async Task<RestResponse> GetAsync<T>() where T : new()
         {
             var response = await _restApi.GetAsync<T>();
 
-            if (!RetryEngine.Instance.IsTransient(response))
+            if (!RetryEngine.Instance.IsTransient(response) || DelayType == BackoffTypes.NoRetry)
                 return response;
 
             var retry = 0;
@@ -268,11 +268,11 @@ namespace RESTSchemaRetry
         /// <param name="paramName"></param>
         /// <param name="paramValue"></param>
         /// <returns></returns>
-        public IRestResponse Get<T>(string paramName, string paramValue) where T : new()
+        public RestResponse Get<T>(string paramName, string paramValue) where T : new()
         {
             var response = _restApi.Get<T>(paramName, paramValue);
 
-            if (!RetryEngine.Instance.IsTransient(response))
+            if (!RetryEngine.Instance.IsTransient(response) || DelayType == BackoffTypes.NoRetry)
                 return response;
 
             var retry = 0;
@@ -301,11 +301,11 @@ namespace RESTSchemaRetry
         /// <param name="paramName"></param>
         /// <param name="paramValue"></param>
         /// <returns></returns>
-        public async Task<IRestResponse> GetAsync<T>(string paramName, string paramValue) where T : new()
+        public async Task<RestResponse> GetAsync<T>(string paramName, string paramValue) where T : new()
         {
             var response = await _restApi.GetAsync<T>(paramName, paramValue);
 
-            if (!RetryEngine.Instance.IsTransient(response))
+            if (!RetryEngine.Instance.IsTransient(response) || DelayType == BackoffTypes.NoRetry)
                 return response;
 
             var retry = 0;
@@ -333,11 +333,11 @@ namespace RESTSchemaRetry
         /// <typeparam name="T"></typeparam>
         /// <param name="paramsKeyValue"></param>
         /// <returns></returns>
-        public IRestResponse Get<T>(Dictionary<string, string> paramsKeyValue) where T : new()
+        public RestResponse Get<T>(Dictionary<string, string> paramsKeyValue) where T : new()
         {
             var response = _restApi.Get<T>(paramsKeyValue);
 
-            if (!RetryEngine.Instance.IsTransient(response))
+            if (!RetryEngine.Instance.IsTransient(response) || DelayType == BackoffTypes.NoRetry)
                 return response;
 
             var retry = 0;
@@ -365,11 +365,11 @@ namespace RESTSchemaRetry
         /// <typeparam name="T"></typeparam>
         /// <param name="objectToPut"></param>
         /// <returns></returns>
-        public IRestResponse Put<T>(object objectToPut) where T : new()
+        public RestResponse Put<T>(object objectToPut) where T : new()
         {
             var response = _restApi.Put<T>(objectToPut);
 
-            if (!RetryEngine.Instance.IsTransient(response))
+            if (!RetryEngine.Instance.IsTransient(response) || DelayType == BackoffTypes.NoRetry)
                 return response;
 
             var retry = 0;
@@ -397,11 +397,11 @@ namespace RESTSchemaRetry
         /// <typeparam name="T"></typeparam>
         /// <param name="objectToPut"></param>
         /// <returns></returns>
-        public async Task<IRestResponse> PutAsync<T>(object objectToPut) where T : new()
+        public async Task<RestResponse> PutAsync<T>(object objectToPut) where T : new()
         {
             var response = await _restApi.PutAsync<T>(objectToPut);
 
-            if (!RetryEngine.Instance.IsTransient(response))
+            if (!RetryEngine.Instance.IsTransient(response) || DelayType == BackoffTypes.NoRetry)
                 return response;
 
             var retry = 0;
@@ -429,11 +429,11 @@ namespace RESTSchemaRetry
         /// <typeparam name="T"></typeparam>
         /// <param name="objectToDelete"></param>
         /// <returns></returns>
-        public IRestResponse Delete<T>(object objectToDelete) where T : new()
+        public RestResponse Delete<T>(object objectToDelete) where T : new()
         {
             var response = _restApi.Delete<T>(objectToDelete);
 
-            if (!RetryEngine.Instance.IsTransient(response))
+            if (!RetryEngine.Instance.IsTransient(response) || DelayType == BackoffTypes.NoRetry)
                 return response;
 
             var retry = 0;
@@ -461,11 +461,11 @@ namespace RESTSchemaRetry
         /// <typeparam name="T"></typeparam>
         /// <param name="objectToDelete"></param>
         /// <returns></returns>
-        public async Task<IRestResponse> DeleteAsync<T>(object objectToDelete) where T : new()
+        public async Task<RestResponse> DeleteAsync<T>(object objectToDelete) where T : new()
         {
             var response = await _restApi.DeleteAsync<T>(objectToDelete);
 
-            if (!RetryEngine.Instance.IsTransient(response))
+            if (!RetryEngine.Instance.IsTransient(response) || DelayType == BackoffTypes.NoRetry)
                 return response;
 
             var retry = 0;
