@@ -9,7 +9,7 @@ namespace RESTSchemaRetry
     public sealed class RetryEngine
     {
         private static RetryEngine instance;
-        private static readonly object padlock = new object();
+        private static readonly object padlock = new();
 
         /// <summary>
         /// The Http status codes deemed non-transient
@@ -66,7 +66,7 @@ namespace RESTSchemaRetry
         /// </summary>
         /// <param name="response"></param>
         /// <returns></returns>
-        public bool IsTransient(IRestResponse response)
+        public bool IsTransient(RestResponse response)
         {
             return IsTransient(response.StatusCode);
         }

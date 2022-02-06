@@ -3,12 +3,17 @@
 namespace RESTSchemaRetry.Enum
 {
     /// <summary>
-    /// The backoff types for the retry schema
+    /// The backoff types for Schema-Retry
     /// </summary>
     public enum BackoffTypes
     {
+        ///<summary>Schema-Retry implementation with constant retry pattern</summary>
         Constant,
+        ///<summary>Schema-Retry implementation with linear retry pattern</summary>
         Linear,
-        Exponential
+        ///<summary>Schema-Retry implementation exponential retry pattern</summary>
+        Exponential,
+        ///<summary>No retry pattern</summary>
+        NoRetry
     }
 }

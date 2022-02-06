@@ -8,12 +8,22 @@ using RestSharp;
 namespace UnitTestProject
 {
     [TestClass]
-    public class UnitTest1
+    public class RetryClientTests
     {
+        private string _baseUrl;
+        private string _resource;
+
+        [TestInitialize]
+        public void TestInitialize()
+        {
+            _baseUrl = "https://httpbin.org";
+            _resource = "get";
+        }
+
         [TestMethod]
         public void TestConfiguration()
         {
-            var client = new RetryClient("http://example.com/", "resource");
+            var client = new RetryClient(_baseUrl, _resource);
 
             Assert.IsNotNull(client.RetryDelay);
             Assert.IsTrue(client.RetryNumber > 0);
@@ -22,7 +32,7 @@ namespace UnitTestProject
         [TestMethod]
         public void TestClientGet()
         {
-            var client = new RetryClient("http://example.com/", "resource");
+            var client = new RetryClient(_baseUrl, _resource);
 
             var response = client.Get<object>();
 
@@ -44,13 +54,10 @@ namespace UnitTestProject
         {
             var response = new RestResponse()
             {
-                StatusCode = HttpStatusCode.BadRequest
+                StatusCode = HttpStatusCode.GatewayTimeout
             };
 
             var isTransient = RetryEngine.Instance.IsTransient(response);
-            Assert.IsFalse(isTransient);
-            response.StatusCode = HttpStatusCode.GatewayTimeout;
-            isTransient = RetryEngine.Instance.IsTransient(response);
             Assert.IsTrue(isTransient);
         }
     }
