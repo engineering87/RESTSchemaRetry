@@ -1,4 +1,4 @@
-[![Github license](mit.svg)](https://github.com/engineering87/RESTSchemaRetry/blob/develop/LICENSE)
+[![Github license](mit.svg)](https://github.com/engineering87/RESTSchemaRetry/blob/master/LICENSE)
 
 # RESTSchemaRetry
 RESTSchemaRetry is a C# standard library that implements a simple Schema-Retry pattern in REST services context to improve the stability of the application.
