@@ -19,17 +19,15 @@ namespace RESTSchemaRetry
         private RetryEngine()
         {
             httpStatusCode = new[] {
-                    HttpStatusCode.BadRequest,
+                    HttpStatusCode.TooManyRequests,
+                    HttpStatusCode.InternalServerError,
+                    HttpStatusCode.BadGateway,
+                    HttpStatusCode.ServiceUnavailable,
+                    HttpStatusCode.GatewayTimeout,
+                    HttpStatusCode.InsufficientStorage,
+                    HttpStatusCode.RequestTimeout,
                     HttpStatusCode.HttpVersionNotSupported,
-                    HttpStatusCode.LengthRequired,
-                    HttpStatusCode.UnsupportedMediaType,
-                    HttpStatusCode.ProxyAuthenticationRequired,
-                    HttpStatusCode.Gone,
-                    HttpStatusCode.LengthRequired,
-                    HttpStatusCode.PreconditionFailed,
-                    HttpStatusCode.RequestEntityTooLarge,
-                    HttpStatusCode.RequestUriTooLong,
-                    HttpStatusCode.RequestedRangeNotSatisfiable
+                    HttpStatusCode.NetworkAuthenticationRequired
             };
         }
 

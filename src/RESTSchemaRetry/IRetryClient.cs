@@ -95,5 +95,21 @@ namespace RESTSchemaRetry
         /// <param name="objectToDelete"></param>
         /// <returns></returns>
         Task<RestResponse> DeleteAsync<T>(object objectToDelete) where T : new();
+
+        /// <summary>
+        /// Execute PATCH
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="objectToPatch"></param>
+        /// <returns></returns>
+        RestResponse Patch<T>(object objectToPatch) where T : new();
+
+        /// <summary>
+        /// Execute async PATCH
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="objectToPatch"></param>
+        /// <returns></returns>
+        Task<RestResponse> PatchAsync<T>(object objectToPatch) where T : new();
     }
 }
