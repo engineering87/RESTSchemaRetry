@@ -1,6 +1,7 @@
 ﻿// (c) 2019 Francesco Del Re <francesco.delre.87@gmail.com>
 // This code is licensed under MIT license (see LICENSE.txt for details)
 using RESTSchemaRetry.Enum;
+using RESTSchemaRetry.Provider;
 using RestSharp;
 using System;
 using System.Collections.Generic;
@@ -512,6 +513,70 @@ namespace RESTSchemaRetry
                 default:
                     return this.RetryDelay;
             }            
+        }
+
+        /// <summary>
+        /// Execute PATCH
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="objectToPatch"></param>
+        /// <returns></returns>
+        public RestResponse Patch<T>(object objectToPatch) where T : new()
+        {
+            var response = _restApi.Patch<T>(objectToPatch);
+
+            if (!RetryEngine.Instance.IsTransient(response) || DelayType == BackoffTypes.NoRetry)
+                return response;
+
+            var retry = 0;
+            while (response.StatusCode != HttpStatusCode.Accepted)
+            {
+                if (retry <= this.RetryNumber)
+                {
+                    Thread.Sleep(GetDelay(retry));
+
+                    response = _restApi.Patch<T>(objectToPatch);
+                    retry++;
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Execute async PATCH
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="objectToPatch"></param>
+        /// <returns></returns>
+        public async Task<RestResponse> PatchAsync<T>(object objectToPatch) where T : new()
+        {
+            var response = await _restApi.PatchAsync<T>(objectToPatch);
+
+            if (!RetryEngine.Instance.IsTransient(response) || DelayType == BackoffTypes.NoRetry)
+                return response;
+
+            var retry = 0;
+            while (response.StatusCode != HttpStatusCode.Accepted)
+            {
+                if (retry <= this.RetryNumber)
+                {
+                    await Task.Delay(GetDelay(retry));
+
+                    response = await _restApi.PatchAsync<T>(objectToPatch);
+                    retry++;
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            return response;
         }
     }
 }

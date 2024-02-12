@@ -1,18 +1,24 @@
 [![Github license](mit.svg)](https://github.com/engineering87/RESTSchemaRetry/blob/master/LICENSE)
 
 # RESTSchemaRetry
-RESTSchemaRetry is a C# standard library that implements a simple Schema-Retry pattern in REST services context to improve the stability of the application.
+RESTSchemaRetry is a C# library that implements a simple Schema-Retry pattern in REST services context to improve the stability of the application.
 A Schema-Retry can handle transient failures when it tries to connect to a service or network resource, by transparently retrying a failed operation. 
 
 ### How it works
 RESTSchemaRetry implements a simple after delay retry schema, managing communication timeouts or service error transparently to the application.
 The retry schema check the HTTP response code to decide if the error is transient or not.
 
-### Retry-Schema
-![Alt text](/wiki/img/Retry-Schema.png?raw=true)
-
-In this example, the application invokes an operation on a hosted service. The request fails and the service responds with status code 500.
-The RESTSchemaRetry wrap all the retry transparently to the application.
+### Transient error recovery
+Below is the list of potentially transient errors handled by RESTSchemaRetry:
+  * TooManyRequests
+  * InternalServerError
+  * BadGateway
+  * ServiceUnavailable
+  * GatewayTimeout
+  * InsufficientStorage
+  * RequestTimeout
+  * HttpVersionNotSupported
+  * NetworkAuthenticationRequired
 
 ### How to use it
 
