@@ -18,7 +18,8 @@ namespace RESTSchemaRetry
 
         private RetryEngine()
         {
-            httpStatusCode = new[] {
+            // list of the transient error codes
+            httpStatusCode = [
                     HttpStatusCode.TooManyRequests,
                     HttpStatusCode.InternalServerError,
                     HttpStatusCode.BadGateway,
@@ -28,7 +29,7 @@ namespace RESTSchemaRetry
                     HttpStatusCode.RequestTimeout,
                     HttpStatusCode.HttpVersionNotSupported,
                     HttpStatusCode.NetworkAuthenticationRequired
-            };
+            ];
         }
 
         public static RetryEngine Instance
@@ -50,13 +51,13 @@ namespace RESTSchemaRetry
         }
 
         /// <summary>
-        /// Determine if the response http status code is transient
+        /// Determine if the response HTTP status code is transient
         /// </summary>
         /// <param name="statusCode"></param>
         /// <returns></returns>
         public bool IsTransient(HttpStatusCode statusCode)
         {
-            return !httpStatusCode.Contains(statusCode);
+            return httpStatusCode.Contains(statusCode);
         }
 
         /// <summary>
