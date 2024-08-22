@@ -5,7 +5,7 @@
 [![issues - RESTSchemaRetry](https://img.shields.io/github/issues/engineering87/RESTSchemaRetry)](https://github.com/engineering87/RESTSchemaRetry/issues)
 [![stars - RESTSchemaRetry](https://img.shields.io/github/stars/engineering87/RESTSchemaRetry?style=social)](https://github.com/engineering87/RESTSchemaRetry)
 
-RESTSchemaRetry is a .NET library that implements a simple Schema-Retry pattern in the context of REST services to enhance application stability.
+RESTSchemaRetry is a .NET library that implements a simple **Schema-Retry** pattern in REST API context to enhance application resilience.
 A Schema-Retry handles transient failures when attempting to connect to a service or network resource by transparently retrying failed operations.
 
 ### How it works
