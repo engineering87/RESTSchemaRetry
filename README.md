@@ -1,12 +1,16 @@
-[![Github license](mit.svg)](https://github.com/engineering87/RESTSchemaRetry/blob/master/LICENSE)
-
 # RESTSchemaRetry
-RESTSchemaRetry is a C# library that implements a simple Schema-Retry pattern in REST services context to improve the stability of the application.
-A Schema-Retry can handle transient failures when it tries to connect to a service or network resource, by transparently retrying a failed operation. 
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Nuget](https://img.shields.io/nuget/v/RESTSchemaRetry?style=plastic)](https://www.nuget.org/packages/RESTSchemaRetry)
+[![issues - RESTSchemaRetry](https://img.shields.io/github/issues/engineering87/RESTSchemaRetry)](https://github.com/engineering87/RESTSchemaRetry/issues)
+[![stars - RESTSchemaRetry](https://img.shields.io/github/stars/engineering87/RESTSchemaRetry?style=social)](https://github.com/engineering87/RESTSchemaRetry)
+
+RESTSchemaRetry is a .NET library that implements a simple Schema-Retry pattern in the context of REST services to enhance application stability.
+A Schema-Retry handles transient failures when attempting to connect to a service or network resource by transparently retrying failed operations.
 
 ### How it works
-RESTSchemaRetry implements a simple after delay retry schema, managing communication timeouts or service error transparently to the application.
-The retry schema check the HTTP response code to decide if the error is transient or not.
+RESTSchemaRetry implements a straightforward retry mechanism with a delay, managing communication timeouts or service errors transparently to the application.
+The retry mechanism checks the HTTP response code to determine whether the error is transient or not.
 
 ### Transient error recovery
 Below is the list of potentially transient errors handled by RESTSchemaRetry:
@@ -35,7 +39,7 @@ For example, below how to execute a POST request:
 var response = retryClient.Post<T>(objectToPost);
 ```
 
-RESTSchemaRetry uses the RestSharp library to execute the web requests.
+RESTSchemaRetry uses the **RestSharp** library to execute the web requests.
 
 ### NuGet Package
 
@@ -47,19 +51,16 @@ RESTSchemaRetry uses the **RestSharp** library, which is distributed under Apach
 * [Official Project](https://github.com/restsharp/RestSharp)
 * [License](https://github.com/restsharp/RestSharp/blob/dev/LICENSE.txt)
 
-### Contributing
+## Contributing
 Thank you for considering to help out with the source code!
 If you'd like to contribute, please fork, fix, commit and send a pull request for the maintainers to review and merge into the main code base.
 
-**Getting started with Git and GitHub**
-
- * [Setting up Git for Windows and connecting to GitHub](http://help.github.com/win-set-up-git/)
- * [Forking a GitHub repository](http://help.github.com/fork-a-repo/)
- * [The simple guide to GIT guide](http://rogerdudler.github.com/git-guide/)
+ * [Setting up Git](https://docs.github.com/en/get-started/getting-started-with-git/set-up-git)
+ * [Fork the repository](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo)
  * [Open an issue](https://github.com/engineering87/RESTSchemaRetry/issues) if you encounter a bug or have a suggestion for improvements/features
 
 ### Licensee
 RESTSchemaRetry source code is available under MIT License, see license in the source.
 
 ### Contact
-Please contact at francesco.delre.87[at]gmail.com for any details.
+Please contact at francesco.delre.87[at]protonmail.com for any details.
