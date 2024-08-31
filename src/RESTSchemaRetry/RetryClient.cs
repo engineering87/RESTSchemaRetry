@@ -2,6 +2,7 @@
 // This code is licensed under MIT license (see LICENSE.txt for details)
 using RESTSchemaRetry.Enum;
 using RESTSchemaRetry.Provider;
+using RESTSchemaRetry.Utils;
 using RestSharp;
 using System;
 using System.Collections.Generic;
@@ -489,7 +490,7 @@ namespace RESTSchemaRetry
         }
 
         /// <summary>
-        /// Compute the current step delay
+        /// Compute the current step delay in seconds
         /// </summary>
         /// <param name="retry"></param>
         /// <returns></returns>
@@ -501,14 +502,34 @@ namespace RESTSchemaRetry
                     return this.RetryDelay;
                 case BackoffTypes.Linear:
                     {
-                        var totalSeconds = (int)this.RetryDelay.TotalSeconds * (retry + 1);
-                        return new TimeSpan(0, 0, 0, totalSeconds);
+                        var totalSeconds = this.RetryDelay.TotalSeconds * (retry + 1);
+                        return TimeSpan.FromSeconds(totalSeconds);
                     }
                 case BackoffTypes.Exponential:
                     {
-                        var totalSeconds = (int)(this.RetryDelay.TotalSeconds +
-                            TimeSpan.FromSeconds(Math.Pow(2, retry + 1)).TotalSeconds);
-                        return new TimeSpan(0, 0, 0, totalSeconds);
+                        var totalSeconds = (int)(this.RetryDelay.TotalSeconds * Math.Pow(2, retry));
+                        return TimeSpan.FromSeconds(totalSeconds);
+                    }
+                case BackoffTypes.ExponentialWithJitter:
+                    {
+                        var random = new Random();
+                        var jitter = random.NextDouble();
+                        var totalSeconds = this.RetryDelay.TotalSeconds * Math.Pow(2, retry) * jitter;
+                        return TimeSpan.FromSeconds(totalSeconds);
+                    }
+                case BackoffTypes.Random:
+                    {
+                        var random = new Random();
+                        var minDelay = (int)this.RetryDelay.TotalSeconds;
+                        var maxDelay = (int)(this.RetryDelay.TotalSeconds * 2);
+                        var totalSeconds = random.Next(minDelay, maxDelay);
+                        return TimeSpan.FromSeconds(totalSeconds);
+                    }
+                case BackoffTypes.Fibonacci:
+                    {
+                        int fibonacci = BackoffUtils.GetFibonacci(retry);
+                        var totalSeconds = this.RetryDelay.TotalSeconds * fibonacci;
+                        return TimeSpan.FromSeconds(totalSeconds);
                     }
                 default:
                     return this.RetryDelay;
@@ -568,6 +589,68 @@ namespace RESTSchemaRetry
                     await Task.Delay(GetDelay(retry));
 
                     response = await _restApi.PatchAsync<T>(objectToPatch);
+                    retry++;
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Execute OPTIONS
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public RestResponse Options<T>() where T : new()
+        {
+            var response = _restApi.Options<T>();
+
+            if (!RetryEngine.Instance.IsTransient(response) || DelayType == BackoffTypes.NoRetry)
+                return response;
+
+            var retry = 0;
+            while (response.StatusCode != HttpStatusCode.Accepted)
+            {
+                if (retry <= this.RetryNumber)
+                {
+                    Thread.Sleep(GetDelay(retry));
+
+                    response = _restApi.Options<T>();
+                    retry++;
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Execute async OPTIONS
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public async Task<RestResponse> OptionsAsync<T>() where T : new()
+        {
+            var response = await _restApi.OptionsAsync<T>();
+
+            if (!RetryEngine.Instance.IsTransient(response) || DelayType == BackoffTypes.NoRetry)
+                return response;
+
+            var retry = 0;
+            while (response.StatusCode != HttpStatusCode.Accepted)
+            {
+                if (retry <= this.RetryNumber)
+                {
+                    await Task.Delay(GetDelay(retry));
+
+                    response = await _restApi.OptionsAsync<T>();
                     retry++;
                 }
                 else
