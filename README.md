@@ -24,6 +24,20 @@ Below is the list of potentially transient errors handled by RESTSchemaRetry:
   * HttpVersionNotSupported
   * NetworkAuthenticationRequired
 
+### Supported Backoff Types
+
+- **Constant Backoff**: The delay between retries is constant and does not change. This is a simple approach where each retry attempt waits for a fixed amount of time, defined by a `RetryDelay` parameter.
+  
+- **Linear Backoff**: The delay between retries increases linearly. Each retry attempt waits longer than the previous one by a fixed increment. The delay is calculated as `RetryDelay * (retry + 1)`.
+
+- **Exponential Backoff**: The delay between retries grows exponentially. The delay is calculated using a power of 2, multiplied by the base RetryDelay. This approach is useful to quickly back off from a failing operation, reducing server load. Formula: `RetryDelay * (2 ^ retry)`.
+  
+- **Exponential Backoff with Jitter**: Similar to exponential backoff, but with added randomness ("jitter") to the delay to avoid synchronized retries from multiple clients, which can cause spikes in traffic. The delay is calculated as `RetryDelay * (2 ^ retry) * random_factor`, where `random_factor` is a random value between 0 and 1.
+  
+- **Fibonacci Backoff**: The delay between retries follows the Fibonacci sequence. This provides a middle ground between linear and exponential backoff, growing less aggressively than exponential. The delay is calculated as `RetryDelay * Fibonacci(retry)`.
+  
+- ***Randomized Backoff**: The delay is randomly chosen between a minimum and a maximum range, usually defined as a multiple of RetryDelay. This helps to distribute retries more evenly over time, avoiding bursts of traffic. The delay is calculated randomly within a range, e.g., `[RetryDelay, RetryDelay * 2]`.
+
 ### How to use it
 
 To use the RESTSchemaRetry library, just instantiate a **RetryClient** object specifying the base URL and the resource.
@@ -63,4 +77,4 @@ If you'd like to contribute, please fork, fix, commit and send a pull request fo
 RESTSchemaRetry source code is available under MIT License, see license in the source.
 
 ### Contact
-Please contact at francesco.delre.87[at]protonmail.com for any details.
+Please contact at francesco.delre[at]protonmail.com for any details.
