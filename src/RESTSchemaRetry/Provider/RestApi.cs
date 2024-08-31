@@ -330,5 +330,31 @@ namespace RESTSchemaRetry.Provider
         }
 
         #endregion
+
+        #region OPTION
+
+        public RestResponse Options<T>() where T : new()
+        {
+            var client = new RestClient(BaseUrl);
+            var request = new RestRequest(Resource, Method.Options)
+            {
+                RequestFormat = DataFormat.Json
+            };
+
+            return AsyncHelper.RunSync(() => client.ExecuteAsync<T>(request));
+        }
+
+        public async Task<RestResponse> OptionsAsync<T>() where T : new()
+        {
+            var client = new RestClient(BaseUrl);
+            var request = new RestRequest(Resource, Method.Options)
+            {
+                RequestFormat = DataFormat.Json
+            };
+
+            return await client.ExecuteAsync<T>(request);
+        }
+
+        #endregion
     }
 }

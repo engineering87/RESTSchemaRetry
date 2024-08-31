@@ -111,5 +111,19 @@ namespace RESTSchemaRetry
         /// <param name="objectToPatch"></param>
         /// <returns></returns>
         Task<RestResponse> PatchAsync<T>(object objectToPatch) where T : new();
+
+        /// <summary>
+        /// Execute OPTIONS
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        RestResponse Options<T>() where T : new();
+
+        /// <summary>
+        /// Execute async OPTIONS
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        Task<RestResponse> OptionsAsync<T>() where T : new();
     }
 }

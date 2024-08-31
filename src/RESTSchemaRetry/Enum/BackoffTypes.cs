@@ -7,13 +7,19 @@ namespace RESTSchemaRetry.Enum
     /// </summary>
     public enum BackoffTypes
     {
-        ///<summary>Schema-Retry implementation with constant retry pattern</summary>
+        ///<summary>Schema-Retry implementation with constant Backoff</summary>
         Constant,
-        ///<summary>Schema-Retry implementation with linear retry pattern</summary>
+        ///<summary>Schema-Retry implementation with linear Backoff</summary>
         Linear,
-        ///<summary>Schema-Retry implementation exponential retry pattern</summary>
+        ///<summary>Schema-Retry implementation exponential Backoff</summary>
         Exponential,
+        /// <summary>Schema-Retry implementation witch jittered Backoff</summary>
+        ExponentialWithJitter,
+        /// <summary>Schema-Retry implementation witch random Backoff</summary>
+        Random,
+        /// <summary>Schema-Retry implementation witch Fibonacci Backoff</summary>
+        Fibonacci,
         ///<summary>No retry pattern</summary>
-        NoRetry
+        NoRetry,
     }
 }
