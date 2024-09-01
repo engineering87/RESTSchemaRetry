@@ -40,7 +40,7 @@ Below is the list of potentially transient errors handled by RESTSchemaRetry:
 
 ### How to use it
 
-To use the RESTSchemaRetry library, just instantiate a **RetryClient** object specifying the base URL and the resource.
+To use the RESTSchemaRetry library, just create a **RetryClient** specifying the base URL and the resource.
 There are multiple constructor to specify the REST API parameters.
 
 ```csharp
@@ -51,6 +51,11 @@ For example, below how to execute a POST request:
 
 ```csharp
 var response = retryClient.Post<T>(objectToPost);
+```
+Alternatively, you can register the library via dependency injection as follows:
+
+```csharp
+builder.Services.AddRetryClient("https://your-base-url.com", "your-rest-resourse");
 ```
 
 RESTSchemaRetry uses the **RestSharp** library to execute the web requests.
