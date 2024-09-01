@@ -36,7 +36,7 @@ Below is the list of potentially transient errors handled by RESTSchemaRetry:
   
 - **Fibonacci Backoff**: The delay between retries follows the Fibonacci sequence. This provides a middle ground between linear and exponential backoff, growing less aggressively than exponential. The delay is calculated as `RetryDelay * Fibonacci(retry)`.
   
-- ***Randomized Backoff**: The delay is randomly chosen between a minimum and a maximum range, usually defined as a multiple of RetryDelay. This helps to distribute retries more evenly over time, avoiding bursts of traffic. The delay is calculated randomly within a range, e.g., `[RetryDelay, RetryDelay * 2]`.
+- **Randomized Backoff**: The delay is randomly chosen between a minimum and a maximum range, usually defined as a multiple of RetryDelay. This helps to distribute retries more evenly over time, avoiding bursts of traffic. The delay is calculated randomly within a range, e.g., `[RetryDelay, RetryDelay * 2]`.
 
 ### How to use it
 
