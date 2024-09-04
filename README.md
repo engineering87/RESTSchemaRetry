@@ -2,6 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Nuget](https://img.shields.io/nuget/v/RESTSchemaRetry?style=plastic)](https://www.nuget.org/packages/RESTSchemaRetry)
+![NuGet Downloads](https://img.shields.io/nuget/dt/RESTSchemaRetry)
 [![issues - RESTSchemaRetry](https://img.shields.io/github/issues/engineering87/RESTSchemaRetry)](https://github.com/engineering87/RESTSchemaRetry/issues)
 [![Build](https://github.com/engineering87/RESTSchemaRetry/actions/workflows/dotnet.yml/badge.svg)](https://github.com/engineering87/RESTSchemaRetry/actions/workflows/dotnet.yml)
 [![stars - RESTSchemaRetry](https://img.shields.io/github/stars/engineering87/RESTSchemaRetry?style=social)](https://github.com/engineering87/RESTSchemaRetry)
