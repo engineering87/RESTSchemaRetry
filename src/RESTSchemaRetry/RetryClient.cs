@@ -18,7 +18,6 @@ namespace RESTSchemaRetry
     public sealed class RetryClient : IRetryClient
     {
         private readonly RestApi _restApi;
-
         public int RetryNumber { get; set; }
         public TimeSpan RetryDelay { get; set; }
         public BackoffTypes DelayType { get; set; }
@@ -143,6 +142,7 @@ namespace RESTSchemaRetry
         /// <typeparam name="T"></typeparam>
         /// <param name="objectToPost"></param>
         /// <returns></returns>
+        [Obsolete("This method is deprecated. Use the asynchronous version instead.")]
         public RestResponse Post<T>(object objectToPost) where T : new()
         {       
             var response = _restApi.Post<T>(objectToPost);
@@ -155,7 +155,7 @@ namespace RESTSchemaRetry
             {
                 if (retry <= this.RetryNumber)
                 {
-                    Thread.Sleep(GetDelay(retry));
+                    Task.Delay(GetDelay(retry)).Wait();
 
                     response = _restApi.Post<T>(objectToPost);
                     retry++;
@@ -206,6 +206,7 @@ namespace RESTSchemaRetry
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
+        [Obsolete("This method is deprecated. Use the asynchronous version instead.")]
         public RestResponse Get<T>() where T : new()
         {
             var response = _restApi.Get<T>();
@@ -218,7 +219,7 @@ namespace RESTSchemaRetry
             {
                 if (retry <= this.RetryNumber)
                 {
-                    Thread.Sleep(GetDelay(retry));
+                    Task.Delay(GetDelay(retry)).Wait();
 
                     response = _restApi.Get<T>();
                     retry++;
@@ -270,6 +271,7 @@ namespace RESTSchemaRetry
         /// <param name="paramName"></param>
         /// <param name="paramValue"></param>
         /// <returns></returns>
+        [Obsolete("This method is deprecated. Use the asynchronous version instead.")]
         public RestResponse Get<T>(string paramName, string paramValue) where T : new()
         {
             var response = _restApi.Get<T>(paramName, paramValue);
@@ -282,7 +284,7 @@ namespace RESTSchemaRetry
             {
                 if (retry <= this.RetryNumber)
                 {
-                    Thread.Sleep(GetDelay(retry));
+                    Task.Delay(GetDelay(retry)).Wait();
 
                     response = _restApi.Get<T>(paramName, paramValue);
                     retry++;
@@ -335,6 +337,7 @@ namespace RESTSchemaRetry
         /// <typeparam name="T"></typeparam>
         /// <param name="paramsKeyValue"></param>
         /// <returns></returns>
+        [Obsolete("This method is deprecated. Use the asynchronous version instead.")]
         public RestResponse Get<T>(Dictionary<string, string> paramsKeyValue) where T : new()
         {
             var response = _restApi.Get<T>(paramsKeyValue);
@@ -347,7 +350,7 @@ namespace RESTSchemaRetry
             {
                 if (retry <= this.RetryNumber)
                 {
-                    Thread.Sleep(GetDelay(retry));
+                    Task.Delay(GetDelay(retry)).Wait();
 
                     response = _restApi.Get<T>(paramsKeyValue);
                     retry++;
@@ -367,6 +370,7 @@ namespace RESTSchemaRetry
         /// <typeparam name="T"></typeparam>
         /// <param name="objectToPut"></param>
         /// <returns></returns>
+        [Obsolete("This method is deprecated. Use the asynchronous version instead.")]
         public RestResponse Put<T>(object objectToPut) where T : new()
         {
             var response = _restApi.Put<T>(objectToPut);
@@ -379,7 +383,7 @@ namespace RESTSchemaRetry
             {
                 if (retry <= this.RetryNumber)
                 {
-                    Thread.Sleep(GetDelay(retry));
+                    Task.Delay(GetDelay(retry)).Wait();
 
                     response = _restApi.Put<T>(objectToPut);
                     retry++;
@@ -431,6 +435,7 @@ namespace RESTSchemaRetry
         /// <typeparam name="T"></typeparam>
         /// <param name="objectToDelete"></param>
         /// <returns></returns>
+        [Obsolete("This method is deprecated. Use the asynchronous version instead.")]
         public RestResponse Delete<T>(object objectToDelete) where T : new()
         {
             var response = _restApi.Delete<T>(objectToDelete);
@@ -443,7 +448,7 @@ namespace RESTSchemaRetry
             {
                 if (retry <= this.RetryNumber)
                 {
-                    Thread.Sleep(GetDelay(retry));
+                    Task.Delay(GetDelay(retry)).Wait();
 
                     response = _restApi.Delete<T>(objectToDelete);
                     retry++;
@@ -542,6 +547,7 @@ namespace RESTSchemaRetry
         /// <typeparam name="T"></typeparam>
         /// <param name="objectToPatch"></param>
         /// <returns></returns>
+        [Obsolete("This method is deprecated. Use the asynchronous version instead.")]
         public RestResponse Patch<T>(object objectToPatch) where T : new()
         {
             var response = _restApi.Patch<T>(objectToPatch);
@@ -554,7 +560,7 @@ namespace RESTSchemaRetry
             {
                 if (retry <= this.RetryNumber)
                 {
-                    Thread.Sleep(GetDelay(retry));
+                    Task.Delay(GetDelay(retry)).Wait();
 
                     response = _restApi.Patch<T>(objectToPatch);
                     retry++;
@@ -605,6 +611,7 @@ namespace RESTSchemaRetry
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
+        [Obsolete("This method is deprecated. Use the asynchronous version instead.")]
         public RestResponse Options<T>() where T : new()
         {
             var response = _restApi.Options<T>();
@@ -617,7 +624,7 @@ namespace RESTSchemaRetry
             {
                 if (retry <= this.RetryNumber)
                 {
-                    Thread.Sleep(GetDelay(retry));
+                    Task.Delay(GetDelay(retry)).Wait();
 
                     response = _restApi.Options<T>();
                     retry++;
