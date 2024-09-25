@@ -1,13 +1,13 @@
 ﻿// (c) 2019 Francesco Del Re <francesco.delre.87@gmail.com>
 // This code is licensed under MIT license (see LICENSE.txt for details)
 using RESTSchemaRetry.Enum;
+using RESTSchemaRetry.Interfaces;
 using RESTSchemaRetry.Provider;
 using RESTSchemaRetry.Utils;
 using RestSharp;
 using System;
 using System.Collections.Generic;
 using System.Net;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace RESTSchemaRetry

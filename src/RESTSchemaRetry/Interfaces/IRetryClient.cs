@@ -4,7 +4,7 @@ using RestSharp;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace RESTSchemaRetry
+namespace RESTSchemaRetry.Interfaces
 {
     public interface IRetryClient
     {
