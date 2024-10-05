@@ -11,7 +11,7 @@
     <Description>RESTSchemaRetry is a C# standard library that implements a simple Schema-Retry pattern in REST services context to improve the stability of the application.</Description>
     <AssemblyVersion>1.0.0.2</AssemblyVersion>
     <FileVersion>1.0.0.2</FileVersion>
-    <Version>3.2.0</Version>
+    <Version>3.3.0</Version>
     <Copyright>MIT</Copyright>
   </PropertyGroup>
 
@@ -23,7 +23,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
-    <PackageReference Include="RestSharp" Version="112.0.0" />
+    <PackageReference Include="RestSharp" Version="112.1.0" />
   </ItemGroup>
 
   <ItemGroup>
