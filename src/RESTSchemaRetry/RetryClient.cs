@@ -54,6 +54,11 @@ namespace RESTSchemaRetry
         /// <param name="retryDelayMs">The delay between retries, in milliseconds.</param>
         public RetryClient(string baseUrl, string resource, int retryDelayMs)
         {
+            if (retryDelayMs < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(retryDelayMs), "Retry delay must be non-negative.");
+            }
+
             _restApi = new RestApi(baseUrl, resource);
             this.RetryNumber = DefaultRetry;
             this.RetryDelay = new TimeSpan(0, 0, 0, 0, retryDelayMs);
@@ -86,6 +91,11 @@ namespace RESTSchemaRetry
 
         public RetryClient(string baseUrl, string resource, int retryNumber, int retryDelayMs)
         {
+            if (retryDelayMs < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(retryDelayMs), "Retry delay must be non-negative.");
+            }
+
             _restApi = new RestApi(baseUrl, resource);
             this.RetryDelay = new TimeSpan(0, 0, 0, 0, retryDelayMs);
             this.RetryNumber = retryNumber >= 0 ? retryNumber : DefaultRetry;
@@ -104,6 +114,11 @@ namespace RESTSchemaRetry
 
         public RetryClient(string baseUrl, string resource, int retryNumber, int retryDelayMs, BackoffTypes backoffTypes)
         {
+            if (retryDelayMs < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(retryDelayMs), "Retry delay must be non-negative.");
+            }
+
             _restApi = new RestApi(baseUrl, resource);
             this.RetryDelay = new TimeSpan(0, 0, 0, 0, retryDelayMs);
             this.RetryNumber = retryNumber >= 0 ? retryNumber : DefaultRetry;

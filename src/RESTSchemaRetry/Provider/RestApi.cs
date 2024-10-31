@@ -7,13 +7,14 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using RESTSchemaRetry.Helper;
+using RESTSchemaRetry.Interfaces;
 
 namespace RESTSchemaRetry.Provider
 {
     /// <summary>
     /// RestSharp wrapper class to RestSharp library
     /// </summary>
-    public sealed class RestApi
+    public sealed class RestApi : IRestApi
     {
         public readonly string BaseUrl;
         public readonly string Resource;
