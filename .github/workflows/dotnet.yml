@@ -24,5 +24,7 @@ jobs:
       run: dotnet restore src/RESTSchemaRetry/RESTSchemaRetry.csproj
     - name: Build
       run: dotnet build src/RESTSchemaRetry/RESTSchemaRetry.csproj --no-restore
+    - name: Build Test Project
+      run: dotnet build src/RESTSchemaRetry.Test/RESTSchemaRetry.Test.csproj --no-restore
     - name: Test
       run: dotnet test src/RESTSchemaRetry.Test/RESTSchemaRetry.Test.csproj --no-build --verbosity normal
