@@ -8,6 +8,7 @@ using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using RESTSchemaRetry.Helper;
 using RESTSchemaRetry.Interfaces;
+using System.Threading;
 
 namespace RESTSchemaRetry.Provider
 {
@@ -54,22 +55,20 @@ namespace RESTSchemaRetry.Provider
                 throw new SerializationException(Messages.ObjectNull);
             }
 
-            if (!objectBody.GetType().IsSerializable)
-            {
-                throw new SerializationException(Messages.SerializationError);
-            }
+            //var type = objectBody.GetType();
+            //var isSerializable = type.IsDefined(typeof(SerializableAttribute), inherit: false);
+
+            //if (!isSerializable)
+            //{
+            //    throw new SerializationException(Messages.SerializationError);
+            //}
         }
 
         #endregion
 
         #region POST
 
-        /// <summary>
-        /// Execute POST
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="objectToPost"></param>
-        /// <returns></returns>
+        /// <inheritdoc />
         public RestResponse Post<T>(object objectToPost) where T : new()
         {
             CheckObject(objectToPost);
@@ -85,13 +84,8 @@ namespace RESTSchemaRetry.Provider
             return AsyncHelper.RunSync(() => client.ExecuteAsync<T>(request));
         }
 
-        /// <summary>
-        /// Execute async POST
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="objectToPost"></param>
-        /// <returns></returns>
-        public async Task<RestResponse> PostAsync<T>(object objectToPost) where T : new()
+        /// <inheritdoc />
+        public async Task<RestResponse> PostAsync<T>(object objectToPost, CancellationToken cancellationToken = default) where T : new()
         {
             CheckObject(objectToPost);
 
@@ -103,40 +97,26 @@ namespace RESTSchemaRetry.Provider
 
             request.AddJsonBody(objectToPost);
 
-            return await client.ExecuteAsync<T>(request);
+            return await client.ExecuteAsync<T>(request, cancellationToken: cancellationToken);
         }
 
         #endregion
 
         #region GET
 
-        /// <summary>
-        /// Execute GET
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
+        /// <inheritdoc />
         public RestResponse Get<T>() where T : new()
         {
             return Get<T>(string.Empty, string.Empty);
         }
 
-        /// <summary>
-        /// Execute async GET
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        public Task<RestResponse> GetAsync<T>() where T : new()
+        /// <inheritdoc />
+        public Task<RestResponse> GetAsync<T>(CancellationToken cancellationToken = default) where T : new()
         {
-            return GetAsync<T>(string.Empty, string.Empty);
+            return GetAsync<T>(string.Empty, string.Empty, cancellationToken);
         }
 
-        /// <summary>
-        /// Execute GET
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="paramName"></param>
-        /// <param name="paramValue"></param>
-        /// <returns></returns>
+        /// <inheritdoc />
         public RestResponse Get<T>(string paramName, string paramValue) where T : new()
         {
             var client = new RestClient(BaseUrl);
@@ -150,14 +130,8 @@ namespace RESTSchemaRetry.Provider
             return AsyncHelper.RunSync(() => client.ExecuteAsync<T>(request));
         }
 
-        /// <summary>
-        /// Execute async GET
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="paramName"></param>
-        /// <param name="paramValue"></param>
-        /// <returns></returns>
-        public async Task<RestResponse> GetAsync<T>(string paramName, string paramValue) where T : new()
+        /// <inheritdoc />
+        public async Task<RestResponse> GetAsync<T>(string paramName, string paramValue, CancellationToken cancellationToken = default) where T : new()
         {
             var client = new RestClient(BaseUrl);
             var request = new RestRequest(Resource, Method.Get);
@@ -167,15 +141,10 @@ namespace RESTSchemaRetry.Provider
                 request.AddParameter(paramName, paramValue);
             }
 
-            return await client.ExecuteAsync<T>(request);
+            return await client.ExecuteAsync<T>(request, cancellationToken: cancellationToken);
         }
 
-        /// <summary>
-        /// Execute GET
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="paramsKeyValue"></param>
-        /// <returns></returns>
+        /// <inheritdoc />
         public RestResponse Get<T>(Dictionary<string, string> paramsKeyValue) where T : new()
         {
             var client = new RestClient(BaseUrl);
@@ -192,16 +161,28 @@ namespace RESTSchemaRetry.Provider
             return AsyncHelper.RunSync(() => client.ExecuteAsync<T>(request));
         }
 
+        /// <inheritdoc />
+        public async Task<RestResponse> GetAsync<T>(Dictionary<string, string> paramsKeyValue, CancellationToken cancellationToken = default) where T : new()
+        {
+            var client = new RestClient(BaseUrl);
+            var request = new RestRequest(Resource, Method.Get);
+
+            if (paramsKeyValue != null)
+            {
+                foreach (var (key, value) in paramsKeyValue)
+                {
+                    request.AddParameter(key, value);
+                }
+            }
+
+            return await client.ExecuteAsync<T>(request, cancellationToken);
+        }
+
         #endregion
 
         #region PUT
 
-        /// <summary>
-        /// Execute PUT
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="objectToPut"></param>
-        /// <returns></returns>
+        /// <inheritdoc />
         public RestResponse Put<T>(object objectToPut) where T : new()
         {
             CheckObject(objectToPut);
@@ -217,13 +198,8 @@ namespace RESTSchemaRetry.Provider
             return AsyncHelper.RunSync(() => client.ExecuteAsync<T>(request));
         }
 
-        /// <summary>
-        /// Execute async PUT
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="objectToPut"></param>
-        /// <returns></returns>
-        public async Task<RestResponse> PutAsync<T>(object objectToPut) where T : new()
+        /// <inheritdoc />
+        public async Task<RestResponse> PutAsync<T>(object objectToPut, CancellationToken cancellationToken = default) where T : new()
         {
             CheckObject(objectToPut);
 
@@ -235,19 +211,14 @@ namespace RESTSchemaRetry.Provider
 
             request.AddJsonBody(objectToPut);
 
-            return await client.ExecuteAsync<T>(request);
+            return await client.ExecuteAsync<T>(request, cancellationToken: cancellationToken);
         }
 
         #endregion
 
         #region DELETE
 
-        /// <summary>
-        /// Execute DELETE
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="objectToDelete"></param>
-        /// <returns></returns>
+        /// <inheritdoc />
         public RestResponse Delete<T>(object objectToDelete) where T : new()
         {
             CheckObject(objectToDelete);
@@ -263,13 +234,8 @@ namespace RESTSchemaRetry.Provider
             return AsyncHelper.RunSync(() => client.ExecuteAsync<T>(request));
         }
 
-        /// <summary>
-        /// Execute async DELETE
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="objectToDelete"></param>
-        /// <returns></returns>
-        public async Task<RestResponse> DeleteAsync<T>(object objectToDelete) where T : new()
+        /// <inheritdoc />
+        public async Task<RestResponse> DeleteAsync<T>(object objectToDelete, CancellationToken cancellationToken = default) where T : new()
         {
             CheckObject(objectToDelete);
 
@@ -281,19 +247,14 @@ namespace RESTSchemaRetry.Provider
 
             request.AddJsonBody(objectToDelete);
 
-            return await client.ExecuteAsync<T>(request);
+            return await client.ExecuteAsync<T>(request, cancellationToken: cancellationToken);
         }
 
         #endregion
 
         #region PATCH
 
-        /// <summary>
-        /// Execute PATCH
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="objectToPatch"></param>
-        /// <returns></returns>
+        /// <inheritdoc />
         public RestResponse Patch<T>(object objectToPatch) where T : new()
         {
             CheckObject(objectToPatch);
@@ -309,13 +270,8 @@ namespace RESTSchemaRetry.Provider
             return AsyncHelper.RunSync(() => client.ExecuteAsync<T>(request));
         }
 
-        /// <summary>
-        /// Execute async PATCH
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="objectToPatch"></param>
-        /// <returns></returns>
-        public async Task<RestResponse> PatchAsync<T>(object objectToPatch) where T : new()
+        /// <inheritdoc />
+        public async Task<RestResponse> PatchAsync<T>(object objectToPatch, CancellationToken cancellationToken = default) where T : new()
         {
             CheckObject(objectToPatch);
 
@@ -327,13 +283,14 @@ namespace RESTSchemaRetry.Provider
 
             request.AddJsonBody(objectToPatch);
 
-            return await client.ExecuteAsync<T>(request);
+            return await client.ExecuteAsync<T>(request, cancellationToken: cancellationToken);
         }
 
         #endregion
 
         #region OPTION
 
+        /// <inheritdoc />
         public RestResponse Options<T>() where T : new()
         {
             var client = new RestClient(BaseUrl);
@@ -345,7 +302,8 @@ namespace RESTSchemaRetry.Provider
             return AsyncHelper.RunSync(() => client.ExecuteAsync<T>(request));
         }
 
-        public async Task<RestResponse> OptionsAsync<T>() where T : new()
+        /// <inheritdoc />
+        public async Task<RestResponse> OptionsAsync<T>(CancellationToken cancellationToken = default) where T : new()
         {
             var client = new RestClient(BaseUrl);
             var request = new RestRequest(Resource, Method.Options)
@@ -353,7 +311,7 @@ namespace RESTSchemaRetry.Provider
                 RequestFormat = DataFormat.Json
             };
 
-            return await client.ExecuteAsync<T>(request);
+            return await client.ExecuteAsync<T>(request, cancellationToken: cancellationToken);
         }
 
         #endregion
