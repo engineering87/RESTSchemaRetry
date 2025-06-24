@@ -2,6 +2,7 @@
 // This code is licensed under MIT license (see LICENSE.txt for details)
 using RestSharp;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace RESTSchemaRetry.Interfaces
@@ -21,8 +22,9 @@ namespace RESTSchemaRetry.Interfaces
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="objectToPost"></param>
+        /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns></returns>
-        Task<RestResponse> PostAsync<T>(object objectToPost) where T : new();
+        Task<RestResponse> PostAsync<T>(object objectToPost, CancellationToken cancellationToken = default) where T : new();
 
         /// <summary>
         /// Execute GET with no params
@@ -35,8 +37,9 @@ namespace RESTSchemaRetry.Interfaces
         /// Execute async GET with no params
         /// </summary>
         /// <typeparam name="T"></typeparam>
+        /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns></returns>
-        Task<RestResponse> GetAsync<T>() where T : new();
+        Task<RestResponse> GetAsync<T>(CancellationToken cancellationToken = default) where T : new();
 
         /// <summary>
         /// Execute GET with params
@@ -53,8 +56,9 @@ namespace RESTSchemaRetry.Interfaces
         /// <typeparam name="T"></typeparam>
         /// <param name="paramName"></param>
         /// <param name="paramValue"></param>
+        /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns></returns>
-        Task<RestResponse> GetAsync<T>(string paramName, string paramValue) where T : new();
+        Task<RestResponse> GetAsync<T>(string paramName, string paramValue, CancellationToken cancellationToken = default) where T : new();
 
         /// <summary>
         /// Execute GET with params
@@ -77,8 +81,9 @@ namespace RESTSchemaRetry.Interfaces
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="objectToPut"></param>
+        /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns></returns>
-        Task<RestResponse> PutAsync<T>(object objectToPut) where T : new();
+        Task<RestResponse> PutAsync<T>(object objectToPut, CancellationToken cancellationToken = default) where T : new();
 
         /// <summary>
         /// Execute DELETE 
@@ -93,8 +98,9 @@ namespace RESTSchemaRetry.Interfaces
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="objectToDelete"></param>
+        /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns></returns>
-        Task<RestResponse> DeleteAsync<T>(object objectToDelete) where T : new();
+        Task<RestResponse> DeleteAsync<T>(object objectToDelete, CancellationToken cancellationToken = default) where T : new();
 
         /// <summary>
         /// Execute PATCH
@@ -109,8 +115,9 @@ namespace RESTSchemaRetry.Interfaces
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="objectToPatch"></param>
+        /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns></returns>
-        Task<RestResponse> PatchAsync<T>(object objectToPatch) where T : new();
+        Task<RestResponse> PatchAsync<T>(object objectToPatch, CancellationToken cancellationToken = default) where T : new();
 
         /// <summary>
         /// Execute OPTIONS
@@ -123,7 +130,8 @@ namespace RESTSchemaRetry.Interfaces
         /// Execute async OPTIONS
         /// </summary>
         /// <typeparam name="T"></typeparam>
+        /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns></returns>
-        Task<RestResponse> OptionsAsync<T>() where T : new();
+        Task<RestResponse> OptionsAsync<T>(CancellationToken cancellationToken = default) where T : new();
     }
 }

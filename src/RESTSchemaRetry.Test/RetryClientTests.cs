@@ -46,9 +46,9 @@ namespace RESTSchemaRetry.Test
         [Fact]
         public void TestTransientHttpCheck()
         {
-            var isTransient = RetryEngine.Instance.IsTransient(HttpStatusCode.BadRequest);
+            var isTransient = RetryEngine.IsTransientStatusCode(HttpStatusCode.BadRequest);
             Assert.False(isTransient);
-            isTransient = RetryEngine.Instance.IsTransient(HttpStatusCode.GatewayTimeout);
+            isTransient = RetryEngine.IsTransientStatusCode(HttpStatusCode.GatewayTimeout);
             Assert.True(isTransient);
         }
 
@@ -60,7 +60,7 @@ namespace RESTSchemaRetry.Test
                 StatusCode = HttpStatusCode.GatewayTimeout
             };
 
-            var isTransient = RetryEngine.Instance.IsTransient(response);
+            var isTransient = RetryEngine.IsTransientStatusCode(response);
             Assert.True(isTransient);
         }
     }
