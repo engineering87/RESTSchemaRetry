@@ -257,7 +257,7 @@ namespace RESTSchemaRetry
         /// </remarks>
         public async Task<RestResponse> PostAsync<T>(object objectToPost, CancellationToken cancellationToken = default) where T : new()
         {
-            return await RetryAsync(() => _restApi.PostAsync<T>(objectToPost));
+            return await RetryAsync(() => _restApi.PostAsync<T>(objectToPost, cancellationToken));
         }
 
         /// <summary>
