@@ -429,49 +429,66 @@ namespace RESTSchemaRetry
         ///     <item><description><see cref="BackoffTypes.ExponentialWithJitter"/>: Applies jitter to the exponential backoff for better distribution of retry attempts.</description></item>
         ///     <item><description><see cref="BackoffTypes.Random"/>: Returns a random delay between a minimum and maximum value.</description></item>
         ///     <item><description><see cref="BackoffTypes.Fibonacci"/>: Uses Fibonacci sequence values to determine the delay.</description></item>
+        ///     <item><description><see cref="BackoffTypes.ExponentialFullJitter"/>: Use Exponential Full Jitter for stateless retries that reduce collisions with randomized exponential delays.</description></item>
         /// </list>
         /// If an unrecognized <see cref="BackoffTypes"/> is provided, a constant delay is returned.
         /// </remarks>
         private TimeSpan GetDelay(int retry)
         {
+            TimeSpan defaultMaxDelay = TimeSpan.FromSeconds(30);
+
+            double delaySeconds;
+
             switch (DelayType)
             {
                 case BackoffTypes.Constant:
-                    return this.RetryDelay;
+                    {
+                        delaySeconds = RetryDelay.TotalSeconds;
+                        break;
+                    }
                 case BackoffTypes.Linear:
                     {
-                        var totalSeconds = this.RetryDelay.TotalSeconds * (retry + 1);
-                        return TimeSpan.FromSeconds(totalSeconds);
+                        delaySeconds = RetryDelay.TotalSeconds * (retry + 1);
+                        break;
                     }
                 case BackoffTypes.Exponential:
                     {
-                        var totalSeconds = (int)(this.RetryDelay.TotalSeconds * Math.Pow(2, retry));
-                        return TimeSpan.FromSeconds(totalSeconds);
+                        delaySeconds = RetryDelay.TotalSeconds * Math.Pow(2, retry);
+                        break;
                     }
                 case BackoffTypes.ExponentialWithJitter:
                     {
-                        var random = new Random();
-                        var jitter = random.NextDouble();
-                        var totalSeconds = this.RetryDelay.TotalSeconds * Math.Pow(2, retry) * jitter;
-                        return TimeSpan.FromSeconds(totalSeconds);
+                        delaySeconds = RetryDelay.TotalSeconds * Math.Pow(2, retry) * Random.Shared.NextDouble();
+                        break;
                     }
                 case BackoffTypes.Random:
                     {
-                        var random = new Random();
-                        var minDelay = (int)this.RetryDelay.TotalSeconds;
-                        var maxDelay = (int)(this.RetryDelay.TotalSeconds * 2);
-                        var totalSeconds = random.Next(minDelay, maxDelay);
-                        return TimeSpan.FromSeconds(totalSeconds);
+                        double min = RetryDelay.TotalSeconds;
+                        double max = RetryDelay.TotalSeconds * 2;
+                        delaySeconds = Random.Shared.NextDouble() * (max - min) + min;
+                        break;
                     }
                 case BackoffTypes.Fibonacci:
                     {
                         int fibonacci = BackoffUtils.GetFibonacci(retry);
-                        var totalSeconds = this.RetryDelay.TotalSeconds * fibonacci;
-                        return TimeSpan.FromSeconds(totalSeconds);
+                        delaySeconds = RetryDelay.TotalSeconds * fibonacci;
+                        break;
+                    }
+                case BackoffTypes.ExponentialFullJitter:
+                    {
+                        double maxDelay = RetryDelay.TotalSeconds * Math.Pow(2, retry);
+                        double delayWithJitter = Random.Shared.NextDouble() * maxDelay;
+                        delaySeconds = Math.Min(delayWithJitter, defaultMaxDelay.TotalSeconds);
+                        break;
                     }
                 default:
-                    return this.RetryDelay;
-            }            
+                    {
+                        delaySeconds = RetryDelay.TotalSeconds;
+                        break;
+                    }
+            }
+
+            return TimeSpan.FromSeconds(Math.Min(delaySeconds, defaultMaxDelay.TotalSeconds));
         }
 
         /// <summary>
