@@ -1,8 +1,12 @@
 // (c) 2019 Francesco Del Re <francesco.delre.87@gmail.com>
 // This code is licensed under MIT license (see LICENSE.txt for details)
+using Moq;
 using RESTSchemaRetry.Enum;
+using RESTSchemaRetry.Provider;
+using RESTSchemaRetry.Test.Model;
 using RestSharp;
 using System.Net;
+using System.Reflection;
 
 namespace RESTSchemaRetry.Test
 {
@@ -10,6 +14,67 @@ namespace RESTSchemaRetry.Test
     {
         private readonly string _baseUrl = "https://api.example.com";
         private readonly string _resource = "/test";
+
+        private RetryClient CreateClientWithMockApi(Mock<RestApi> mockApi)
+        {
+            var client = new RetryClient(_baseUrl, _resource)
+            {
+                RetryNumber = 3,
+                RetryDelay = TimeSpan.Zero,
+                DelayType = BackoffTypes.Constant
+            };
+
+            // Override private readonly field _restApi using reflection
+            var restApiField = typeof(RetryClient).GetField("_restApi", BindingFlags.NonPublic | BindingFlags.Instance);
+            restApiField?.SetValue(client, mockApi.Object);
+
+            return client;
+        }
+
+        [Fact]
+        public async Task PostAsync_ShouldNotRetry_OnSuccessResponse()
+        {
+            var mockApi = new Mock<RestApi>(_baseUrl, _resource);
+            mockApi
+                .Setup(api => api.PostAsync<DummyResponse>(It.IsAny<object>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new RestResponse { StatusCode = HttpStatusCode.Accepted });
+
+            var client = CreateClientWithMockApi(mockApi);
+
+            // Act
+            var result = await client.PostAsync<DummyResponse>(new { Name = "Test" });
+
+            // Assert
+            Assert.Equal(HttpStatusCode.Accepted, result.StatusCode);
+            mockApi.Verify(api => api.PostAsync<DummyResponse>(It.IsAny<object>(), It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task PostAsync_ShouldRetryOnTransientError_ThenSucceed()
+        {
+            var mockApi = new Mock<RestApi>(_baseUrl, _resource);
+
+            // Arrange
+            var responses = new Queue<RestResponse>(new[]
+            {
+                new RestResponse { StatusCode = HttpStatusCode.ServiceUnavailable },
+                new RestResponse { StatusCode = HttpStatusCode.ServiceUnavailable },
+                new RestResponse { StatusCode = HttpStatusCode.Accepted }
+            });
+
+            mockApi.Setup(api => api.PostAsync<DummyResponse>(It.IsAny<object>(), It.IsAny<CancellationToken>()))
+                   .ReturnsAsync(() => responses.Dequeue());
+
+            var client = CreateClientWithMockApi(mockApi);
+
+            // Act
+            var response = await client.PostAsync<DummyResponse>(new { });
+
+            // Assert
+            Assert.Equal(HttpStatusCode.Accepted, response.StatusCode);
+            mockApi.Verify(api => api.PostAsync<DummyResponse>(It.IsAny<object>(), It.IsAny<CancellationToken>()), Times.Exactly(3));
+        }
+
 
         [Fact]
         public void Constructor_DefaultValuesAreSet()

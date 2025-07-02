@@ -15,7 +15,7 @@ namespace RESTSchemaRetry.Provider
     /// <summary>
     /// RestSharp wrapper class to RestSharp library
     /// </summary>
-    public sealed class RestApi : IRestApi
+    public class RestApi : IRestApi
     {
         private readonly RestClient _client;
 
@@ -64,7 +64,7 @@ namespace RESTSchemaRetry.Provider
         #region POST
 
         /// <inheritdoc />
-        public RestResponse Post<T>(object objectToPost) where T : new()
+        public virtual RestResponse Post<T>(object objectToPost) where T : new()
         {
             CheckObject(objectToPost);
 
@@ -79,7 +79,7 @@ namespace RESTSchemaRetry.Provider
         }
 
         /// <inheritdoc />
-        public async Task<RestResponse> PostAsync<T>(object objectToPost, CancellationToken cancellationToken = default) where T : new()
+        public virtual async Task<RestResponse> PostAsync<T>(object objectToPost, CancellationToken cancellationToken = default) where T : new()
         {
             CheckObject(objectToPost);
 
@@ -98,19 +98,19 @@ namespace RESTSchemaRetry.Provider
         #region GET
 
         /// <inheritdoc />
-        public RestResponse Get<T>() where T : new()
+        public virtual RestResponse Get<T>() where T : new()
         {
             return Get<T>(string.Empty, string.Empty);
         }
 
         /// <inheritdoc />
-        public Task<RestResponse> GetAsync<T>(CancellationToken cancellationToken = default) where T : new()
+        public virtual Task<RestResponse> GetAsync<T>(CancellationToken cancellationToken = default) where T : new()
         {
             return GetAsync<T>(string.Empty, string.Empty, cancellationToken);
         }
 
         /// <inheritdoc />
-        public RestResponse Get<T>(string paramName, string paramValue) where T : new()
+        public virtual RestResponse Get<T>(string paramName, string paramValue) where T : new()
         {
             var request = new RestRequest(Resource, Method.Get);
 
@@ -123,7 +123,7 @@ namespace RESTSchemaRetry.Provider
         }
 
         /// <inheritdoc />
-        public async Task<RestResponse> GetAsync<T>(string paramName, string paramValue, CancellationToken cancellationToken = default) where T : new()
+        public virtual async Task<RestResponse> GetAsync<T>(string paramName, string paramValue, CancellationToken cancellationToken = default) where T : new()
         {
             var request = new RestRequest(Resource, Method.Get);
 
@@ -136,7 +136,7 @@ namespace RESTSchemaRetry.Provider
         }
 
         /// <inheritdoc />
-        public RestResponse Get<T>(Dictionary<string, string> paramsKeyValue) where T : new()
+        public virtual RestResponse Get<T>(Dictionary<string, string> paramsKeyValue) where T : new()
         {
             var request = new RestRequest(Resource, Method.Get);
 
@@ -152,7 +152,7 @@ namespace RESTSchemaRetry.Provider
         }
 
         /// <inheritdoc />
-        public async Task<RestResponse> GetAsync<T>(Dictionary<string, string> paramsKeyValue, CancellationToken cancellationToken = default) where T : new()
+        public virtual async Task<RestResponse> GetAsync<T>(Dictionary<string, string> paramsKeyValue, CancellationToken cancellationToken = default) where T : new()
         {
             var request = new RestRequest(Resource, Method.Get);
 
@@ -172,7 +172,7 @@ namespace RESTSchemaRetry.Provider
         #region PUT
 
         /// <inheritdoc />
-        public RestResponse Put<T>(object objectToPut) where T : new()
+        public virtual RestResponse Put<T>(object objectToPut) where T : new()
         {
             CheckObject(objectToPut);
 
@@ -187,7 +187,7 @@ namespace RESTSchemaRetry.Provider
         }
 
         /// <inheritdoc />
-        public async Task<RestResponse> PutAsync<T>(object objectToPut, CancellationToken cancellationToken = default) where T : new()
+        public virtual async Task<RestResponse> PutAsync<T>(object objectToPut, CancellationToken cancellationToken = default) where T : new()
         {
             CheckObject(objectToPut);
 
@@ -206,7 +206,7 @@ namespace RESTSchemaRetry.Provider
         #region DELETE
 
         /// <inheritdoc />
-        public RestResponse Delete<T>(object objectToDelete) where T : new()
+        public virtual RestResponse Delete<T>(object objectToDelete) where T : new()
         {
             CheckObject(objectToDelete);
 
@@ -221,7 +221,7 @@ namespace RESTSchemaRetry.Provider
         }
 
         /// <inheritdoc />
-        public async Task<RestResponse> DeleteAsync<T>(object objectToDelete, CancellationToken cancellationToken = default) where T : new()
+        public virtual async Task<RestResponse> DeleteAsync<T>(object objectToDelete, CancellationToken cancellationToken = default) where T : new()
         {
             CheckObject(objectToDelete);
 
@@ -240,7 +240,7 @@ namespace RESTSchemaRetry.Provider
         #region PATCH
 
         /// <inheritdoc />
-        public RestResponse Patch<T>(object objectToPatch) where T : new()
+        public virtual RestResponse Patch<T>(object objectToPatch) where T : new()
         {
             CheckObject(objectToPatch);
 
@@ -255,7 +255,7 @@ namespace RESTSchemaRetry.Provider
         }
 
         /// <inheritdoc />
-        public async Task<RestResponse> PatchAsync<T>(object objectToPatch, CancellationToken cancellationToken = default) where T : new()
+        public virtual async Task<RestResponse> PatchAsync<T>(object objectToPatch, CancellationToken cancellationToken = default) where T : new()
         {
             CheckObject(objectToPatch);
 
@@ -274,7 +274,7 @@ namespace RESTSchemaRetry.Provider
         #region OPTION
 
         /// <inheritdoc />
-        public RestResponse Options<T>() where T : new()
+        public virtual RestResponse Options<T>() where T : new()
         {
             var request = new RestRequest(Resource, Method.Options)
             {
@@ -285,7 +285,7 @@ namespace RESTSchemaRetry.Provider
         }
 
         /// <inheritdoc />
-        public async Task<RestResponse> OptionsAsync<T>(CancellationToken cancellationToken = default) where T : new()
+        public virtual async Task<RestResponse> OptionsAsync<T>(CancellationToken cancellationToken = default) where T : new()
         {
             var request = new RestRequest(Resource, Method.Options)
             {
