@@ -61,12 +61,12 @@ namespace RESTSchemaRetry.Test
             var mockApi = new Mock<RestApi>(_baseUrl, _resource);
 
             // Arrange
-            var responses = new Queue<RestResponse<DummyResponse>>(new[]
-            {
+            var responses = new Queue<RestResponse<DummyResponse>>(
+            [
                 new RestResponse<DummyResponse>(new RestRequest()) { StatusCode = HttpStatusCode.ServiceUnavailable },
                 new RestResponse<DummyResponse>(new RestRequest()) { StatusCode = HttpStatusCode.ServiceUnavailable },
                 new RestResponse<DummyResponse>(new RestRequest()) { StatusCode = HttpStatusCode.Accepted, Data = new DummyResponse() }
-            });
+            ]);
 
             mockApi
                 .Setup(api => api.PostAsync<DummyRequest, DummyResponse>(It.IsAny<DummyRequest>(), It.IsAny<CancellationToken>()))
@@ -75,7 +75,7 @@ namespace RESTSchemaRetry.Test
             var client = CreateClientWithMockApi(mockApi);
 
             // Act
-            var requestPayload = new DummyRequest(); // Puoi aggiungere dati se vuoi
+            var requestPayload = new DummyRequest();
             var response = await client.PostAsync<DummyRequest, DummyResponse>(requestPayload);
 
             // Assert
@@ -96,7 +96,7 @@ namespace RESTSchemaRetry.Test
         [Fact]
         public void Constructor_CustomRetryDelayIsSet()
         {
-            int customDelay = 2000; // in milliseconds
+            int customDelay = 2000;
             var client = new RetryClient(_baseUrl, _resource, customDelay);
 
             Assert.Equal(TimeSpan.FromMilliseconds(customDelay), client.RetryDelay);

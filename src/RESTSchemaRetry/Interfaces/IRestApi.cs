@@ -16,7 +16,8 @@ namespace RESTSchemaRetry.Interfaces
         /// <typeparam name="TResponse">Response type.</typeparam>
         /// <param name="objectToPost">Object to post.</param>
         /// <returns>RestResponse.</returns>
-        RestResponse<TResponse> Post<TRequest, TResponse>(TRequest objectToPost) where TRequest : class
+        RestResponse<TResponse> Post<TRequest, TResponse>(TRequest objectToPost) 
+            where TRequest : class
             where TResponse : new();
 
         /// <summary>
@@ -27,7 +28,8 @@ namespace RESTSchemaRetry.Interfaces
         /// <param name="objectToPost">Object to post.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>RestResponse task.</returns>
-        Task<RestResponse<TResponse>> PostAsync<TRequest, TResponse>(TRequest objectToPost, CancellationToken cancellationToken = default) where TRequest : class
+        Task<RestResponse<TResponse>> PostAsync<TRequest, TResponse>(TRequest objectToPost, CancellationToken cancellationToken = default) 
+            where TRequest : class
             where TResponse : new();
 
         /// <summary>
@@ -94,7 +96,8 @@ namespace RESTSchemaRetry.Interfaces
         /// <typeparam name="TResponse">Response type.</typeparam>
         /// <param name="objectToPut">Object to put.</param>
         /// <returns>RestResponse.</returns>
-        RestResponse<TResponse> Put<TRequest, TResponse>(TRequest objectToPut) where TRequest : class
+        RestResponse<TResponse> Put<TRequest, TResponse>(TRequest objectToPut) 
+            where TRequest : class
             where TResponse : new();
 
         /// <summary>
@@ -105,7 +108,8 @@ namespace RESTSchemaRetry.Interfaces
         /// <param name="objectToPut">Object to put.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>RestResponse task.</returns>
-        Task<RestResponse<TResponse>> PutAsync<TRequest, TResponse>(TRequest objectToPut, CancellationToken cancellationToken = default) where TRequest : class
+        Task<RestResponse<TResponse>> PutAsync<TRequest, TResponse>(TRequest objectToPut, CancellationToken cancellationToken = default) 
+            where TRequest : class
             where TResponse : new();
 
         /// <summary>
@@ -115,7 +119,8 @@ namespace RESTSchemaRetry.Interfaces
         /// <typeparam name="TResponse">Response type.</typeparam>
         /// <param name="objectToDelete">Object to delete.</param>
         /// <returns>RestResponse.</returns>
-        RestResponse<TResponse> Delete<TRequest, TResponse>(TRequest objectToDelete) where TRequest : class
+        RestResponse<TResponse> Delete<TRequest, TResponse>(TRequest objectToDelete) 
+            where TRequest : class
             where TResponse : new();
 
         /// <summary>
@@ -126,7 +131,8 @@ namespace RESTSchemaRetry.Interfaces
         /// <param name="objectToDelete">Object to delete.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>RestResponse task.</returns>
-        Task<RestResponse<TResponse>> DeleteAsync<TRequest, TResponse>(TRequest objectToDelete, CancellationToken cancellationToken = default) where TRequest : class
+        Task<RestResponse<TResponse>> DeleteAsync<TRequest, TResponse>(TRequest objectToDelete, CancellationToken cancellationToken = default) 
+            where TRequest : class
             where TResponse : new();
 
         /// <summary>
@@ -136,7 +142,8 @@ namespace RESTSchemaRetry.Interfaces
         /// <typeparam name="TResponse">Response type.</typeparam>
         /// <param name="objectToPatch">Object to patch.</param>
         /// <returns>RestResponse.</returns>
-        RestResponse<TResponse> Patch<TRequest, TResponse>(TRequest objectToPatch) where TRequest : class
+        RestResponse<TResponse> Patch<TRequest, TResponse>(TRequest objectToPatch) 
+            where TRequest : class
             where TResponse : new();
 
         /// <summary>
@@ -147,7 +154,8 @@ namespace RESTSchemaRetry.Interfaces
         /// <param name="objectToPatch">Object to patch.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>RestResponse task.</returns>
-        Task<RestResponse<TResponse>> PatchAsync<TRequest, TResponse>(TRequest objectToPatch, CancellationToken cancellationToken = default) where TRequest : class
+        Task<RestResponse<TResponse>> PatchAsync<TRequest, TResponse>(TRequest objectToPatch, CancellationToken cancellationToken = default) 
+            where TRequest : class
             where TResponse : new();
 
         /// <summary>
