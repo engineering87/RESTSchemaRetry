@@ -21,5 +21,7 @@ namespace RESTSchemaRetry.Enum
         Fibonacci,
         ///<summary>No retry pattern</summary>
         NoRetry,
+        /// <summary>Schema-Retry implementation witch Exponential Backoff with Full Jitter</summary>
+        ExponentialFullJitter
     }
 }

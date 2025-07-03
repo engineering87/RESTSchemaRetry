@@ -1,8 +1,12 @@
 // (c) 2019 Francesco Del Re <francesco.delre.87@gmail.com>
 // This code is licensed under MIT license (see LICENSE.txt for details)
+using Moq;
 using RESTSchemaRetry.Enum;
+using RESTSchemaRetry.Provider;
+using RESTSchemaRetry.Test.Model;
 using RestSharp;
 using System.Net;
+using System.Reflection;
 
 namespace RESTSchemaRetry.Test
 {
@@ -10,6 +14,74 @@ namespace RESTSchemaRetry.Test
     {
         private readonly string _baseUrl = "https://api.example.com";
         private readonly string _resource = "/test";
+
+        private RetryClient CreateClientWithMockApi(Mock<RestApi> mockApi)
+        {
+            var client = new RetryClient(_baseUrl, _resource)
+            {
+                RetryNumber = 3,
+                RetryDelay = TimeSpan.Zero,
+                DelayType = BackoffTypes.Constant
+            };
+
+            // Override private readonly field _restApi using reflection
+            var restApiField = typeof(RetryClient).GetField("_restApi", BindingFlags.NonPublic | BindingFlags.Instance);
+            restApiField?.SetValue(client, mockApi.Object);
+
+            return client;
+        }
+
+        [Fact]
+        public async Task PostAsync_ShouldNotRetry_OnSuccessResponse()
+        {
+            var mockApi = new Mock<RestApi>(_baseUrl, _resource);
+
+            mockApi
+                .Setup(api => api.PostAsync<DummyRequest, DummyResponse>(It.IsAny<DummyRequest>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new RestResponse<DummyResponse>(new RestRequest())
+                {
+                    StatusCode = HttpStatusCode.Accepted,
+                    Data = new DummyResponse()
+                });
+
+            var client = CreateClientWithMockApi(mockApi);
+
+            // Act
+            var requestPayload = new DummyRequest { };
+            var result = await client.PostAsync<DummyRequest, DummyResponse>(requestPayload);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.Accepted, result.StatusCode);
+            mockApi.Verify(api => api.PostAsync<DummyRequest, DummyResponse>(It.IsAny<DummyRequest>(), It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task PostAsync_ShouldRetryOnTransientError_ThenSucceed()
+        {
+            var mockApi = new Mock<RestApi>(_baseUrl, _resource);
+
+            // Arrange
+            var responses = new Queue<RestResponse<DummyResponse>>(
+            [
+                new RestResponse<DummyResponse>(new RestRequest()) { StatusCode = HttpStatusCode.ServiceUnavailable },
+                new RestResponse<DummyResponse>(new RestRequest()) { StatusCode = HttpStatusCode.ServiceUnavailable },
+                new RestResponse<DummyResponse>(new RestRequest()) { StatusCode = HttpStatusCode.Accepted, Data = new DummyResponse() }
+            ]);
+
+            mockApi
+                .Setup(api => api.PostAsync<DummyRequest, DummyResponse>(It.IsAny<DummyRequest>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(() => responses.Dequeue());
+
+            var client = CreateClientWithMockApi(mockApi);
+
+            // Act
+            var requestPayload = new DummyRequest();
+            var response = await client.PostAsync<DummyRequest, DummyResponse>(requestPayload);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.Accepted, response.StatusCode);
+            mockApi.Verify(api => api.PostAsync<DummyRequest, DummyResponse>(It.IsAny<DummyRequest>(), It.IsAny<CancellationToken>()), Times.Exactly(3));
+        }
 
         [Fact]
         public void Constructor_DefaultValuesAreSet()
@@ -24,7 +96,7 @@ namespace RESTSchemaRetry.Test
         [Fact]
         public void Constructor_CustomRetryDelayIsSet()
         {
-            int customDelay = 2000; // in milliseconds
+            int customDelay = 2000;
             var client = new RetryClient(_baseUrl, _resource, customDelay);
 
             Assert.Equal(TimeSpan.FromMilliseconds(customDelay), client.RetryDelay);
@@ -46,9 +118,9 @@ namespace RESTSchemaRetry.Test
         [Fact]
         public void TestTransientHttpCheck()
         {
-            var isTransient = RetryEngine.Instance.IsTransient(HttpStatusCode.BadRequest);
+            var isTransient = RetryEngine.IsTransientStatusCode(HttpStatusCode.BadRequest);
             Assert.False(isTransient);
-            isTransient = RetryEngine.Instance.IsTransient(HttpStatusCode.GatewayTimeout);
+            isTransient = RetryEngine.IsTransientStatusCode(HttpStatusCode.GatewayTimeout);
             Assert.True(isTransient);
         }
 
@@ -60,7 +132,7 @@ namespace RESTSchemaRetry.Test
                 StatusCode = HttpStatusCode.GatewayTimeout
             };
 
-            var isTransient = RetryEngine.Instance.IsTransient(response);
+            var isTransient = RetryEngine.IsTransientStatusCode(response);
             Assert.True(isTransient);
         }
     }

@@ -40,19 +40,33 @@ Below is the list of potentially transient errors handled by RESTSchemaRetry:
   
 - **Randomized Backoff**: The delay is randomly chosen between a minimum and a maximum range, usually defined as a multiple of RetryDelay. This helps to distribute retries more evenly over time, avoiding bursts of traffic. The delay is calculated randomly within a range, e.g., `[RetryDelay, RetryDelay * 2]`.
 
+- **Exponential Full Jitter Backoff**: This strategy provides exponential backoff with full jitter. It’s especially effective for reducing collision and spreading retries over `time.delay = random(0, RetryDelay * 2^retry)` (capped to a max delay).
+
+### Backoff Strategies Comparison
+
+| Backoff Type               | Description                                         | Pros                                            | Cons                                           | Recommended Use Case                               |
+|---------------------------|-----------------------------------------------------|-------------------------------------------------|------------------------------------------------|---------------------------------------------------|
+| **Constant**              | Fixed delay between retries                          | Simple, predictable                             | Can cause retry storms if many clients retry simultaneously | Simple scenarios with low contention               |
+| **Linear**                | Delay increases linearly each retry                  | Gradual increase reduces load                    | May be too slow for high load                    | Moderate retry attempts where steady increase helps |
+| **Exponential**           | Delay doubles every retry                             | Quickly reduces retries, eases server load       | Risk of synchronized retries                     | High contention, backend stress scenarios          |
+| **Exponential with Jitter** | Exponential delay plus random jitter               | Avoids retry synchronization and traffic spikes | Less predictable delay                           | Distributed systems with many clients               |
+| **Fibonacci**             | Delay follows Fibonacci sequence                      | Balanced growth, smoother than exponential      | Slightly more complex                            | When moderate backoff is preferred                   |
+| **Randomized**            | Delay randomly chosen in a range                      | Spreads out retries, avoids bursts                | Delay is unpredictable                           | Systems sensitive to retry bursts                    |
+| **Exponential Full Jitter**| Exponential delay with full jitter randomized        | Minimizes collision, best spread of retries      | More complex, highly variable delay              | Stateless retries, high concurrency environments     |
+
 ### How to use it
 
 To use the RESTSchemaRetry library, just create a **RetryClient** specifying the base URL and the resource.
 There are multiple constructor to specify the REST API parameters.
 
 ```csharp
-var retryClient = new RetryClient("https://example.com/","resource");
+var retryClient = new RetryClient("https://example.com/","your-rest-resourse");
 ```
 at this point the REST API requests can be performed.
 For example, below how to execute a POST request:
 
 ```csharp
-var response = retryClient.Post<T>(objectToPost);
+var response = retryClient.Post<TRequest, TResponse>(objectToPost);
 ```
 Alternatively, you can register the library via dependency injection as follows:
 
