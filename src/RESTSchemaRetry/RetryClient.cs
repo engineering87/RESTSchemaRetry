@@ -174,7 +174,7 @@ namespace RESTSchemaRetry
         /// The method retries the operation when transient failures occur, as determined by the <see cref="RetryEngine"/>. 
         /// Delays between retries follow the configured <see cref="BackoffTypes"/> strategy.
         /// </remarks>
-        private async Task<RestResponse> RetryAsync(Func<Task<RestResponse>> action)
+        private async Task<RestResponse<TResponse>> RetryAsync<TResponse>(Func<Task<RestResponse<TResponse>>> action) where TResponse : new()
         {
             var response = await action();
 
@@ -184,7 +184,7 @@ namespace RESTSchemaRetry
             int retry = 0;
             while (response.StatusCode != HttpStatusCode.Accepted)
             {
-                if (retry > this.RetryNumber)
+                if (retry >= this.RetryNumber)
                     break;
 
                 await Task.Delay(GetDelay(retry));
@@ -206,7 +206,7 @@ namespace RESTSchemaRetry
         /// allows retry. The retry attempts will stop either when a successful (Accepted) response is received
         /// or the maximum number of retries is reached.
         /// </remarks>
-        private RestResponse Retry(Func<RestResponse> action)
+        private RestResponse<TResponse> Retry<TResponse>(Func<RestResponse<TResponse>> action) where TResponse : new()
         {
             var response = action();
 
@@ -216,14 +216,13 @@ namespace RESTSchemaRetry
             int retry = 0;
             while (response.StatusCode != HttpStatusCode.Accepted)
             {
-                if (retry > this.RetryNumber)
+                if (retry >= this.RetryNumber)
                     break;
 
                 Task.Delay(GetDelay(retry)).Wait();
                 response = action();
                 retry++;
             }
-
             return response;
         }
 
@@ -239,9 +238,11 @@ namespace RESTSchemaRetry
         /// The delay between retries follows the configured <see cref="BackoffTypes"/> strategy.
         /// </remarks>
         [Obsolete("This method is deprecated. Use the asynchronous version instead.")]
-        public RestResponse Post<T>(object objectToPost) where T : new()
+        public RestResponse<TResponse> Post<TRequest, TResponse>(TRequest objectToPost)
+            where TRequest : class
+            where TResponse : new()
         {
-            return Retry(() => _restApi.Post<T>(objectToPost));
+            return Retry(() => _restApi.Post<TRequest, TResponse>(objectToPost));
         }
 
         /// <summary>
@@ -255,9 +256,11 @@ namespace RESTSchemaRetry
         /// This method retries on transient failures as determined by the <see cref="RetryEngine"/> and retries up to the specified limit. 
         /// The delay between retries follows the configured <see cref="BackoffTypes"/> strategy. 
         /// </remarks>
-        public async Task<RestResponse> PostAsync<T>(object objectToPost, CancellationToken cancellationToken = default) where T : new()
+        public async Task<RestResponse<TResponse>> PostAsync<TRequest, TResponse>(TRequest objectToPost, CancellationToken cancellationToken = default)
+            where TRequest : class
+            where TResponse : new()
         {
-            return await RetryAsync(() => _restApi.PostAsync<T>(objectToPost, cancellationToken));
+            return await RetryAsync(() => _restApi.PostAsync<TRequest, TResponse>(objectToPost, cancellationToken));
         }
 
         /// <summary>
@@ -272,9 +275,10 @@ namespace RESTSchemaRetry
         /// </remarks>
         [Obsolete("This method is deprecated. Use the asynchronous version instead.")]
 
-        public RestResponse Get<T>() where T : new()
+        public RestResponse<TResponse> Get<TResponse>() 
+            where TResponse : new()
         {
-            return Retry(() => _restApi.Get<T>());
+            return Retry(() => _restApi.Get<TResponse>());
         }
 
         /// <summary>
@@ -287,9 +291,10 @@ namespace RESTSchemaRetry
         /// The delay between retries follows the configured <see cref="BackoffTypes"/> strategy.
         /// </remarks>
 
-        public async Task<RestResponse> GetAsync<T>(CancellationToken cancellationToken = default) where T : new()
+        public async Task<RestResponse<TResponse>> GetAsync<TResponse>(CancellationToken cancellationToken = default) 
+            where TResponse : new()
         {
-            return await RetryAsync(() => _restApi.GetAsync<T>(cancellationToken));
+            return await RetryAsync(() => _restApi.GetAsync<TResponse>(cancellationToken));
         }
 
         /// <summary>
@@ -306,9 +311,10 @@ namespace RESTSchemaRetry
         /// </remarks>
         [Obsolete("This method is deprecated. Use the asynchronous version instead.")]
 
-        public RestResponse Get<T>(string paramName, string paramValue) where T : new()
+        public RestResponse<TResponse> Get<TResponse>(string paramName, string paramValue) 
+            where TResponse : new()
         {
-            return Retry(() => _restApi.Get<T>(paramName, paramValue));
+            return Retry(() => _restApi.Get<TResponse>(paramName, paramValue));
         }
 
         /// <summary>
@@ -324,9 +330,10 @@ namespace RESTSchemaRetry
         /// The delay between retries follows the configured <see cref="BackoffTypes"/> strategy.
         /// </remarks>
 
-        public async Task<RestResponse> GetAsync<T>(string paramName, string paramValue, CancellationToken cancellationToken = default) where T : new()
+        public async Task<RestResponse<TResponse>> GetAsync<TResponse>(string paramName, string paramValue, CancellationToken cancellationToken = default) 
+            where TResponse : new()
         {
-            return await RetryAsync(() => _restApi.GetAsync<T>(paramName, paramValue, cancellationToken));
+            return await RetryAsync(() => _restApi.GetAsync<TResponse>(paramName, paramValue, cancellationToken));
         }
 
         /// <summary>
@@ -341,9 +348,10 @@ namespace RESTSchemaRetry
         /// </remarks>
 
         [Obsolete("This method is deprecated. Use the asynchronous version instead.")]
-        public RestResponse Get<T>(Dictionary<string, string> paramsKeyValue) where T : new()
+        public RestResponse<TResponse> Get<TResponse>(Dictionary<string, string> paramsKeyValue) 
+            where TResponse : new()
         {
-            return Retry(() => _restApi.Get<T>(paramsKeyValue));
+            return Retry(() => _restApi.Get<TResponse>(paramsKeyValue));
         }
 
         /// <summary>
@@ -358,9 +366,11 @@ namespace RESTSchemaRetry
         /// The delay between retries is determined by the configured <see cref="BackoffTypes"/> strategy.
         /// </remarks>
         [Obsolete("This method is deprecated. Use the asynchronous version instead.")]
-        public RestResponse Put<T>(object objectToPut) where T : new()
+        public RestResponse<TResponse> Put<TRequest, TResponse>(TRequest objectToPut) 
+            where TRequest : class
+            where TResponse : new()
         {
-            return Retry(() => _restApi.Put<T>(objectToPut));
+            return Retry(() => _restApi.Put<TRequest, TResponse>(objectToPut));
         }
 
         /// <summary>
@@ -375,9 +385,11 @@ namespace RESTSchemaRetry
         /// and continues to retry until the response status code is accepted or the retry limit is reached. The delay between retries follows the configured <see cref="BackoffTypes"/> strategy.
         /// </remarks>
 
-        public async Task<RestResponse> PutAsync<T>(object objectToPut, CancellationToken cancellationToken = default) where T : new()
+        public async Task<RestResponse<TResponse>> PutAsync<TRequest, TResponse>(TRequest objectToPut, CancellationToken cancellationToken = default) 
+            where TRequest : class
+            where TResponse : new()
         {
-            return await RetryAsync(() => _restApi.PutAsync<T>(objectToPut, cancellationToken));
+            return await RetryAsync(() => _restApi.PutAsync<TRequest, TResponse>(objectToPut, cancellationToken));
         }
 
         /// <summary>
@@ -392,9 +404,11 @@ namespace RESTSchemaRetry
         /// The delay between retries is determined by the configured <see cref="BackoffTypes"/> strategy.
         /// </remarks>
         [Obsolete("This method is deprecated. Use the asynchronous version instead.")]
-        public RestResponse Delete<T>(object objectToDelete) where T : new()
+        public RestResponse<TResponse> Delete<TRequest, TResponse>(TRequest objectToDelete) 
+            where TRequest : class
+            where TResponse : new()
         {
-            return Retry(() => _restApi.Delete<T>(objectToDelete));
+            return Retry(() => _restApi.Delete<TRequest, TResponse>(objectToDelete));
         }
 
         /// <summary>
@@ -410,9 +424,11 @@ namespace RESTSchemaRetry
         /// The delay between retries is governed by the configured <see cref="BackoffTypes"/> strategy.
         /// </remarks>
 
-        public async Task<RestResponse> DeleteAsync<T>(object objectToDelete, CancellationToken cancellationToken = default) where T : new()
+        public async Task<RestResponse<TResponse>> DeleteAsync<TRequest, TResponse>(TRequest objectToDelete, CancellationToken cancellationToken = default) 
+            where TRequest : class
+            where TResponse : new()
         {
-            return await RetryAsync(() => _restApi.DeleteAsync<T>(objectToDelete, cancellationToken));
+            return await RetryAsync(() => _restApi.DeleteAsync<TRequest, TResponse>(objectToDelete, cancellationToken));
         }
 
         /// <summary>
@@ -507,9 +523,11 @@ namespace RESTSchemaRetry
         /// </remarks>
 
         [Obsolete("This method is deprecated. Use the asynchronous version instead.")]
-        public RestResponse Patch<T>(object objectToPatch) where T : new()
+        public RestResponse<TResponse> Patch<TRequest, TResponse>(TRequest objectToPatch) 
+            where TRequest : class
+            where TResponse : new()
         {
-            return Retry(() => _restApi.Patch<T>(objectToPatch));
+            return Retry(() => _restApi.Patch<TRequest, TResponse>(objectToPatch));
         }
 
         /// <summary>
@@ -527,9 +545,11 @@ namespace RESTSchemaRetry
         /// (indicated by a status code of HttpStatusCode.Accepted) or the maximum retry limit is reached.
         /// </remarks>
 
-        public async Task<RestResponse> PatchAsync<T>(object objectToPatch, CancellationToken cancellationToken = default) where T : new()
+        public async Task<RestResponse<TResponse>> PatchAsync<TRequest, TResponse>(TRequest objectToPatch, CancellationToken cancellationToken = default) 
+            where TRequest : class
+            where TResponse : new()
         {
-            return await RetryAsync(() => _restApi.PatchAsync<T>(objectToPatch, cancellationToken));
+            return await RetryAsync(() => _restApi.PatchAsync<TRequest, TResponse>(objectToPatch, cancellationToken));
         }
 
         /// <summary>
@@ -547,9 +567,10 @@ namespace RESTSchemaRetry
         /// </remarks>
 
         [Obsolete("This method is deprecated. Use the asynchronous version instead.")]
-        public RestResponse Options<T>() where T : new()
+        public RestResponse<TResponse> Options<TResponse>() 
+            where TResponse : new()
         {
-            return Retry(() => _restApi.Options<T>());
+            return Retry(() => _restApi.Options<TResponse>());
         }
 
         /// <summary>
@@ -567,9 +588,10 @@ namespace RESTSchemaRetry
         /// received (indicated by a status code of HttpStatusCode.Accepted) or the maximum retry limit is reached.
         /// </remarks>
 
-        public async Task<RestResponse> OptionsAsync<T>(CancellationToken cancellationToken = default) where T : new()
+        public async Task<RestResponse<TResponse>> OptionsAsync<TResponse>(CancellationToken cancellationToken = default) 
+            where TResponse : new()
         {
-            return await RetryAsync(() => _restApi.OptionsAsync<T>(cancellationToken));
+            return await RetryAsync(() => _restApi.OptionsAsync<TResponse>(cancellationToken));
         }
     }
 }

@@ -35,18 +35,24 @@ namespace RESTSchemaRetry.Test
         public async Task PostAsync_ShouldNotRetry_OnSuccessResponse()
         {
             var mockApi = new Mock<RestApi>(_baseUrl, _resource);
+
             mockApi
-                .Setup(api => api.PostAsync<DummyResponse>(It.IsAny<object>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new RestResponse { StatusCode = HttpStatusCode.Accepted });
+                .Setup(api => api.PostAsync<DummyRequest, DummyResponse>(It.IsAny<DummyRequest>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new RestResponse<DummyResponse>(new RestRequest())
+                {
+                    StatusCode = HttpStatusCode.Accepted,
+                    Data = new DummyResponse()
+                });
 
             var client = CreateClientWithMockApi(mockApi);
 
             // Act
-            var result = await client.PostAsync<DummyResponse>(new { Name = "Test" });
+            var requestPayload = new DummyRequest { };
+            var result = await client.PostAsync<DummyRequest, DummyResponse>(requestPayload);
 
             // Assert
             Assert.Equal(HttpStatusCode.Accepted, result.StatusCode);
-            mockApi.Verify(api => api.PostAsync<DummyResponse>(It.IsAny<object>(), It.IsAny<CancellationToken>()), Times.Once);
+            mockApi.Verify(api => api.PostAsync<DummyRequest, DummyResponse>(It.IsAny<DummyRequest>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
@@ -55,26 +61,27 @@ namespace RESTSchemaRetry.Test
             var mockApi = new Mock<RestApi>(_baseUrl, _resource);
 
             // Arrange
-            var responses = new Queue<RestResponse>(new[]
+            var responses = new Queue<RestResponse<DummyResponse>>(new[]
             {
-                new RestResponse { StatusCode = HttpStatusCode.ServiceUnavailable },
-                new RestResponse { StatusCode = HttpStatusCode.ServiceUnavailable },
-                new RestResponse { StatusCode = HttpStatusCode.Accepted }
+                new RestResponse<DummyResponse>(new RestRequest()) { StatusCode = HttpStatusCode.ServiceUnavailable },
+                new RestResponse<DummyResponse>(new RestRequest()) { StatusCode = HttpStatusCode.ServiceUnavailable },
+                new RestResponse<DummyResponse>(new RestRequest()) { StatusCode = HttpStatusCode.Accepted, Data = new DummyResponse() }
             });
 
-            mockApi.Setup(api => api.PostAsync<DummyResponse>(It.IsAny<object>(), It.IsAny<CancellationToken>()))
-                   .ReturnsAsync(() => responses.Dequeue());
+            mockApi
+                .Setup(api => api.PostAsync<DummyRequest, DummyResponse>(It.IsAny<DummyRequest>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(() => responses.Dequeue());
 
             var client = CreateClientWithMockApi(mockApi);
 
             // Act
-            var response = await client.PostAsync<DummyResponse>(new { });
+            var requestPayload = new DummyRequest(); // Puoi aggiungere dati se vuoi
+            var response = await client.PostAsync<DummyRequest, DummyResponse>(requestPayload);
 
             // Assert
             Assert.Equal(HttpStatusCode.Accepted, response.StatusCode);
-            mockApi.Verify(api => api.PostAsync<DummyResponse>(It.IsAny<object>(), It.IsAny<CancellationToken>()), Times.Exactly(3));
+            mockApi.Verify(api => api.PostAsync<DummyRequest, DummyResponse>(It.IsAny<DummyRequest>(), It.IsAny<CancellationToken>()), Times.Exactly(3));
         }
-
 
         [Fact]
         public void Constructor_DefaultValuesAreSet()

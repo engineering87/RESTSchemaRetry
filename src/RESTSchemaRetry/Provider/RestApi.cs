@@ -42,12 +42,12 @@ namespace RESTSchemaRetry.Provider
         {
             if (string.IsNullOrEmpty(baseUrl))
             {
-                throw new ArgumentNullException(Messages.BaseUrlInvalid);
+                throw new ArgumentException(Messages.BaseUrlInvalid);
             }
 
             if (string.IsNullOrEmpty(resource))
             {
-                throw new ArgumentNullException(Messages.ResourceInvalid);
+                throw new ArgumentException(Messages.ResourceInvalid);
             }
         }
 
@@ -64,7 +64,9 @@ namespace RESTSchemaRetry.Provider
         #region POST
 
         /// <inheritdoc />
-        public virtual RestResponse Post<T>(object objectToPost) where T : new()
+        public virtual RestResponse<TResponse> Post<TRequest, TResponse>(TRequest objectToPost)
+            where TRequest : class
+            where TResponse : new()
         {
             CheckObject(objectToPost);
 
@@ -75,11 +77,13 @@ namespace RESTSchemaRetry.Provider
 
             request.AddJsonBody(objectToPost);
 
-            return AsyncHelper.RunSync(() => _client.ExecuteAsync<T>(request));
+            return AsyncHelper.RunSync(() => _client.ExecuteAsync<TResponse>(request));
         }
 
         /// <inheritdoc />
-        public virtual async Task<RestResponse> PostAsync<T>(object objectToPost, CancellationToken cancellationToken = default) where T : new()
+        public virtual async Task<RestResponse<TResponse>> PostAsync<TRequest, TResponse>(TRequest objectToPost, CancellationToken cancellationToken = default)
+            where TRequest : class
+            where TResponse : new()
         {
             CheckObject(objectToPost);
 
@@ -90,7 +94,7 @@ namespace RESTSchemaRetry.Provider
 
             request.AddJsonBody(objectToPost);
 
-            return await _client.ExecuteAsync<T>(request, cancellationToken: cancellationToken);
+            return await _client.ExecuteAsync<TResponse>(request, cancellationToken: cancellationToken);
         }
 
         #endregion
@@ -98,32 +102,19 @@ namespace RESTSchemaRetry.Provider
         #region GET
 
         /// <inheritdoc />
-        public virtual RestResponse Get<T>() where T : new()
+        public virtual RestResponse<TResponse> Get<TResponse>() where TResponse : new()
         {
-            return Get<T>(string.Empty, string.Empty);
+            return Get<TResponse>(string.Empty, string.Empty);
         }
 
         /// <inheritdoc />
-        public virtual Task<RestResponse> GetAsync<T>(CancellationToken cancellationToken = default) where T : new()
+        public virtual Task<RestResponse<TResponse>> GetAsync<TResponse>(CancellationToken cancellationToken = default) where TResponse : new()
         {
-            return GetAsync<T>(string.Empty, string.Empty, cancellationToken);
+            return GetAsync<TResponse>(string.Empty, string.Empty, cancellationToken);
         }
 
         /// <inheritdoc />
-        public virtual RestResponse Get<T>(string paramName, string paramValue) where T : new()
-        {
-            var request = new RestRequest(Resource, Method.Get);
-
-            if (!string.IsNullOrEmpty(paramName))
-            {
-                request.AddParameter(paramName, paramValue);
-            }
-
-            return AsyncHelper.RunSync(() => _client.ExecuteAsync<T>(request));
-        }
-
-        /// <inheritdoc />
-        public virtual async Task<RestResponse> GetAsync<T>(string paramName, string paramValue, CancellationToken cancellationToken = default) where T : new()
+        public virtual RestResponse<TResponse> Get<TResponse>(string paramName, string paramValue) where TResponse : new()
         {
             var request = new RestRequest(Resource, Method.Get);
 
@@ -132,11 +123,24 @@ namespace RESTSchemaRetry.Provider
                 request.AddParameter(paramName, paramValue);
             }
 
-            return await _client.ExecuteAsync<T>(request, cancellationToken: cancellationToken);
+            return AsyncHelper.RunSync(() => _client.ExecuteAsync<TResponse>(request));
         }
 
         /// <inheritdoc />
-        public virtual RestResponse Get<T>(Dictionary<string, string> paramsKeyValue) where T : new()
+        public virtual async Task<RestResponse<TResponse>> GetAsync<TResponse>(string paramName, string paramValue, CancellationToken cancellationToken = default) where TResponse : new()
+        {
+            var request = new RestRequest(Resource, Method.Get);
+
+            if (!string.IsNullOrEmpty(paramName))
+            {
+                request.AddParameter(paramName, paramValue);
+            }
+
+            return await _client.ExecuteAsync<TResponse>(request, cancellationToken: cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public virtual RestResponse<TResponse> Get<TResponse>(Dictionary<string, string> paramsKeyValue) where TResponse : new()
         {
             var request = new RestRequest(Resource, Method.Get);
 
@@ -148,11 +152,11 @@ namespace RESTSchemaRetry.Provider
                 }
             }
 
-            return AsyncHelper.RunSync(() => _client.ExecuteAsync<T>(request));
+            return AsyncHelper.RunSync(() => _client.ExecuteAsync<TResponse>(request));
         }
 
         /// <inheritdoc />
-        public virtual async Task<RestResponse> GetAsync<T>(Dictionary<string, string> paramsKeyValue, CancellationToken cancellationToken = default) where T : new()
+        public virtual async Task<RestResponse<TResponse>> GetAsync<TResponse>(Dictionary<string, string> paramsKeyValue, CancellationToken cancellationToken = default) where TResponse : new()
         {
             var request = new RestRequest(Resource, Method.Get);
 
@@ -164,7 +168,7 @@ namespace RESTSchemaRetry.Provider
                 }
             }
 
-            return await _client.ExecuteAsync<T>(request, cancellationToken);
+            return await _client.ExecuteAsync<TResponse>(request, cancellationToken);
         }
 
         #endregion
@@ -172,7 +176,9 @@ namespace RESTSchemaRetry.Provider
         #region PUT
 
         /// <inheritdoc />
-        public virtual RestResponse Put<T>(object objectToPut) where T : new()
+        public virtual RestResponse<TResponse> Put<TRequest, TResponse>(TRequest objectToPut)
+            where TRequest : class
+            where TResponse : new()
         {
             CheckObject(objectToPut);
 
@@ -183,11 +189,13 @@ namespace RESTSchemaRetry.Provider
 
             request.AddJsonBody(objectToPut);
 
-            return AsyncHelper.RunSync(() => _client.ExecuteAsync<T>(request));
+            return AsyncHelper.RunSync(() => _client.ExecuteAsync<TResponse>(request));
         }
 
         /// <inheritdoc />
-        public virtual async Task<RestResponse> PutAsync<T>(object objectToPut, CancellationToken cancellationToken = default) where T : new()
+        public virtual async Task<RestResponse<TResponse>> PutAsync<TRequest, TResponse>(TRequest objectToPut, CancellationToken cancellationToken = default)
+            where TRequest : class
+            where TResponse : new()
         {
             CheckObject(objectToPut);
 
@@ -198,7 +206,7 @@ namespace RESTSchemaRetry.Provider
 
             request.AddJsonBody(objectToPut);
 
-            return await _client.ExecuteAsync<T>(request, cancellationToken: cancellationToken);
+            return await _client.ExecuteAsync<TResponse>(request, cancellationToken: cancellationToken);
         }
 
         #endregion
@@ -206,7 +214,9 @@ namespace RESTSchemaRetry.Provider
         #region DELETE
 
         /// <inheritdoc />
-        public virtual RestResponse Delete<T>(object objectToDelete) where T : new()
+        public virtual RestResponse<TResponse> Delete<TRequest, TResponse>(TRequest objectToDelete)
+            where TRequest : class
+            where TResponse : new()
         {
             CheckObject(objectToDelete);
 
@@ -217,11 +227,13 @@ namespace RESTSchemaRetry.Provider
 
             request.AddJsonBody(objectToDelete);
 
-            return AsyncHelper.RunSync(() => _client.ExecuteAsync<T>(request));
+            return AsyncHelper.RunSync(() => _client.ExecuteAsync<TResponse>(request));
         }
 
         /// <inheritdoc />
-        public virtual async Task<RestResponse> DeleteAsync<T>(object objectToDelete, CancellationToken cancellationToken = default) where T : new()
+        public virtual async Task<RestResponse<TResponse>> DeleteAsync<TRequest, TResponse>(TRequest objectToDelete, CancellationToken cancellationToken = default)
+            where TRequest : class
+            where TResponse : new()
         {
             CheckObject(objectToDelete);
 
@@ -232,7 +244,7 @@ namespace RESTSchemaRetry.Provider
 
             request.AddJsonBody(objectToDelete);
 
-            return await _client.ExecuteAsync<T>(request, cancellationToken: cancellationToken);
+            return await _client.ExecuteAsync<TResponse>(request, cancellationToken: cancellationToken);
         }
 
         #endregion
@@ -240,7 +252,9 @@ namespace RESTSchemaRetry.Provider
         #region PATCH
 
         /// <inheritdoc />
-        public virtual RestResponse Patch<T>(object objectToPatch) where T : new()
+        public virtual RestResponse<TResponse> Patch<TRequest, TResponse>(TRequest objectToPatch)
+            where TRequest : class
+            where TResponse : new()
         {
             CheckObject(objectToPatch);
 
@@ -251,11 +265,13 @@ namespace RESTSchemaRetry.Provider
 
             request.AddJsonBody(objectToPatch);
 
-            return AsyncHelper.RunSync(() => _client.ExecuteAsync<T>(request));
+            return AsyncHelper.RunSync(() => _client.ExecuteAsync<TResponse>(request));
         }
 
         /// <inheritdoc />
-        public virtual async Task<RestResponse> PatchAsync<T>(object objectToPatch, CancellationToken cancellationToken = default) where T : new()
+        public virtual async Task<RestResponse<TResponse>> PatchAsync<TRequest, TResponse>(TRequest objectToPatch, CancellationToken cancellationToken = default)
+            where TRequest : class
+            where TResponse : new()
         {
             CheckObject(objectToPatch);
 
@@ -266,33 +282,34 @@ namespace RESTSchemaRetry.Provider
 
             request.AddJsonBody(objectToPatch);
 
-            return await _client.ExecuteAsync<T>(request, cancellationToken: cancellationToken);
+            return await _client.ExecuteAsync<TResponse>(request, cancellationToken: cancellationToken);
         }
 
         #endregion
 
-        #region OPTION
+        #region OPTIONS
 
         /// <inheritdoc />
-        public virtual RestResponse Options<T>() where T : new()
+        public virtual RestResponse<TResponse> Options<TResponse>() where TResponse : new()
         {
             var request = new RestRequest(Resource, Method.Options)
             {
                 RequestFormat = DataFormat.Json
             };
 
-            return AsyncHelper.RunSync(() => _client.ExecuteAsync<T>(request));
+            return AsyncHelper.RunSync(() => _client.ExecuteAsync<TResponse>(request));
         }
 
         /// <inheritdoc />
-        public virtual async Task<RestResponse> OptionsAsync<T>(CancellationToken cancellationToken = default) where T : new()
+        public virtual async Task<RestResponse<TResponse>> OptionsAsync<TResponse>(CancellationToken cancellationToken = default) 
+            where TResponse : new()
         {
             var request = new RestRequest(Resource, Method.Options)
             {
                 RequestFormat = DataFormat.Json
             };
 
-            return await _client.ExecuteAsync<T>(request, cancellationToken: cancellationToken);
+            return await _client.ExecuteAsync<TResponse>(request, cancellationToken: cancellationToken);
         }
 
         #endregion

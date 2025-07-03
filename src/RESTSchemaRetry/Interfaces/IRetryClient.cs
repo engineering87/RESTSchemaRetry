@@ -10,128 +10,159 @@ namespace RESTSchemaRetry.Interfaces
     public interface IRetryClient
     {
         /// <summary>
-        /// Execute POST
+        /// Executes a synchronous POST request with a request body.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="objectToPost"></param>
-        /// <returns></returns>
-        RestResponse Post<T>(object objectToPost) where T : new();
+        /// <typeparam name="TRequest">The type of the object to post.</typeparam>
+        /// <typeparam name="TResponse">The expected response type.</typeparam>
+        /// <param name="objectToPost">The object to send in the POST request body.</param>
+        /// <returns>A <see cref="RestResponse{TResponse}"/> containing the response.</returns>
+        RestResponse<TResponse> Post<TRequest, TResponse>(TRequest objectToPost)
+            where TRequest : class
+            where TResponse : new();
 
         /// <summary>
-        /// Execute async POST
+        /// Executes an asynchronous POST request with a request body.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="objectToPost"></param>
+        /// <typeparam name="TRequest">The type of the object to post.</typeparam>
+        /// <typeparam name="TResponse">The expected response type.</typeparam>
+        /// <param name="objectToPost">The object to send in the POST request body.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
-        /// <returns></returns>
-        Task<RestResponse> PostAsync<T>(object objectToPost, CancellationToken cancellationToken = default) where T : new();
+        /// <returns>A task representing the asynchronous operation, with a <see cref="RestResponse{TResponse}"/> result.</returns>
+        Task<RestResponse<TResponse>> PostAsync<TRequest, TResponse>(TRequest objectToPost, CancellationToken cancellationToken = default)
+            where TRequest : class
+            where TResponse : new();
 
         /// <summary>
-        /// Execute GET with no params
+        /// Executes a synchronous GET request with no parameters.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        RestResponse Get<T>() where T : new();
+        /// <typeparam name="TResponse">The expected response type.</typeparam>
+        /// <returns>A <see cref="RestResponse{TResponse}"/> containing the response.</returns>
+        RestResponse<TResponse> Get<TResponse>()
+            where TResponse : new();
 
         /// <summary>
-        /// Execute async GET with no params
+        /// Executes an asynchronous GET request with no parameters.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="TResponse">The expected response type.</typeparam>
         /// <param name="cancellationToken">Cancellation token.</param>
-        /// <returns></returns>
-        Task<RestResponse> GetAsync<T>(CancellationToken cancellationToken = default) where T : new();
+        /// <returns>A task representing the asynchronous operation, with a <see cref="RestResponse{TResponse}"/> result.</returns>
+        Task<RestResponse<TResponse>> GetAsync<TResponse>(CancellationToken cancellationToken = default)
+            where TResponse : new();
 
         /// <summary>
-        /// Execute GET with params
+        /// Executes a synchronous GET request with a single query parameter.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="paramName"></param>
-        /// <param name="paramValue"></param>
-        /// <returns></returns>
-        RestResponse Get<T>(string paramName, string paramValue) where T : new();
+        /// <typeparam name="TResponse">The expected response type.</typeparam>
+        /// <param name="paramName">The name of the query parameter.</param>
+        /// <param name="paramValue">The value of the query parameter.</param>
+        /// <returns>A <see cref="RestResponse{TResponse}"/> containing the response.</returns>
+        RestResponse<TResponse> Get<TResponse>(string paramName, string paramValue)
+            where TResponse : new();
 
         /// <summary>
-        /// Execute async GET with params
+        /// Executes an asynchronous GET request with a single query parameter.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="paramName"></param>
-        /// <param name="paramValue"></param>
+        /// <typeparam name="TResponse">The expected response type.</typeparam>
+        /// <param name="paramName">The name of the query parameter.</param>
+        /// <param name="paramValue">The value of the query parameter.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
-        /// <returns></returns>
-        Task<RestResponse> GetAsync<T>(string paramName, string paramValue, CancellationToken cancellationToken = default) where T : new();
+        /// <returns>A task representing the asynchronous operation, with a <see cref="RestResponse{TResponse}"/> result.</returns>
+        Task<RestResponse<TResponse>> GetAsync<TResponse>(string paramName, string paramValue, CancellationToken cancellationToken = default)
+            where TResponse : new();
 
         /// <summary>
-        /// Execute GET with params
+        /// Executes a synchronous GET request with multiple query parameters.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="paramsKeyValue"></param>
-        /// <returns></returns>
-        RestResponse Get<T>(Dictionary<string, string> paramsKeyValue) where T : new();
+        /// <typeparam name="TResponse">The expected response type.</typeparam>
+        /// <param name="paramsKeyValue">A dictionary of query parameter key-value pairs.</param>
+        /// <returns>A <see cref="RestResponse{TResponse}"/> containing the response.</returns>
+        RestResponse<TResponse> Get<TResponse>(Dictionary<string, string> paramsKeyValue)
+            where TResponse : new();
 
         /// <summary>
-        /// Execute PUT
+        /// Executes a synchronous PUT request with a request body.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="objectToPut"></param>
-        /// <returns></returns>
-        RestResponse Put<T>(object objectToPut) where T : new();
+        /// <typeparam name="TRequest">The type of the object to put.</typeparam>
+        /// <typeparam name="TResponse">The expected response type.</typeparam>
+        /// <param name="objectToPut">The object to send in the PUT request body.</param>
+        /// <returns>A <see cref="RestResponse{TResponse}"/> containing the response.</returns>
+        RestResponse<TResponse> Put<TRequest, TResponse>(TRequest objectToPut)
+            where TRequest : class
+            where TResponse : new();
 
         /// <summary>
-        /// Execute async PUT
+        /// Executes an asynchronous PUT request with a request body.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="objectToPut"></param>
+        /// <typeparam name="TRequest">The type of the object to put.</typeparam>
+        /// <typeparam name="TResponse">The expected response type.</typeparam>
+        /// <param name="objectToPut">The object to send in the PUT request body.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
-        /// <returns></returns>
-        Task<RestResponse> PutAsync<T>(object objectToPut, CancellationToken cancellationToken = default) where T : new();
+        /// <returns>A task representing the asynchronous operation, with a <see cref="RestResponse{TResponse}"/> result.</returns>
+        Task<RestResponse<TResponse>> PutAsync<TRequest, TResponse>(TRequest objectToPut, CancellationToken cancellationToken = default)
+            where TRequest : class
+            where TResponse : new();
 
         /// <summary>
-        /// Execute DELETE 
+        /// Executes a synchronous DELETE request with a request body.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="objectToDelete"></param>
-        /// <returns></returns>
-        RestResponse Delete<T>(object objectToDelete) where T : new();
+        /// <typeparam name="TRequest">The type of the object to delete.</typeparam>
+        /// <typeparam name="TResponse">The expected response type.</typeparam>
+        /// <param name="objectToDelete">The object to send in the DELETE request body.</param>
+        /// <returns>A <see cref="RestResponse{TResponse}"/> containing the response.</returns>
+        RestResponse<TResponse> Delete<TRequest, TResponse>(TRequest objectToDelete)
+            where TRequest : class
+            where TResponse : new();
 
         /// <summary>
-        /// Execute async DELETE
+        /// Executes an asynchronous DELETE request with a request body.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="objectToDelete"></param>
+        /// <typeparam name="TRequest">The type of the object to delete.</typeparam>
+        /// <typeparam name="TResponse">The expected response type.</typeparam>
+        /// <param name="objectToDelete">The object to send in the DELETE request body.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
-        /// <returns></returns>
-        Task<RestResponse> DeleteAsync<T>(object objectToDelete, CancellationToken cancellationToken = default) where T : new();
+        /// <returns>A task representing the asynchronous operation, with a <see cref="RestResponse{TResponse}"/> result.</returns>
+        Task<RestResponse<TResponse>> DeleteAsync<TRequest, TResponse>(TRequest objectToDelete, CancellationToken cancellationToken = default)
+            where TRequest : class
+            where TResponse : new();
 
         /// <summary>
-        /// Execute PATCH
+        /// Executes a synchronous PATCH request with a request body.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="objectToPatch"></param>
-        /// <returns></returns>
-        RestResponse Patch<T>(object objectToPatch) where T : new();
+        /// <typeparam name="TRequest">The type of the object to patch.</typeparam>
+        /// <typeparam name="TResponse">The expected response type.</typeparam>
+        /// <param name="objectToPatch">The object to send in the PATCH request body.</param>
+        /// <returns>A <see cref="RestResponse{TResponse}"/> containing the response.</returns>
+        RestResponse<TResponse> Patch<TRequest, TResponse>(TRequest objectToPatch)
+            where TRequest : class
+            where TResponse : new();
 
         /// <summary>
-        /// Execute async PATCH
+        /// Executes an asynchronous PATCH request with a request body.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="objectToPatch"></param>
+        /// <typeparam name="TRequest">The type of the object to patch.</typeparam>
+        /// <typeparam name="TResponse">The expected response type.</typeparam>
+        /// <param name="objectToPatch">The object to send in the PATCH request body.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
-        /// <returns></returns>
-        Task<RestResponse> PatchAsync<T>(object objectToPatch, CancellationToken cancellationToken = default) where T : new();
+        /// <returns>A task representing the asynchronous operation, with a <see cref="RestResponse{TResponse}"/> result.</returns>
+        Task<RestResponse<TResponse>> PatchAsync<TRequest, TResponse>(TRequest objectToPatch, CancellationToken cancellationToken = default)
+            where TRequest : class
+            where TResponse : new();
 
         /// <summary>
-        /// Execute OPTIONS
+        /// Executes a synchronous OPTIONS request.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        RestResponse Options<T>() where T : new();
+        /// <typeparam name="TResponse">The expected response type.</typeparam>
+        /// <returns>A <see cref="RestResponse{TResponse}"/> containing the response.</returns>
+        RestResponse<TResponse> Options<TResponse>()
+            where TResponse : new();
 
         /// <summary>
-        /// Execute async OPTIONS
+        /// Executes an asynchronous OPTIONS request.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="TResponse">The expected response type.</typeparam>
         /// <param name="cancellationToken">Cancellation token.</param>
-        /// <returns></returns>
-        Task<RestResponse> OptionsAsync<T>(CancellationToken cancellationToken = default) where T : new();
+        /// <returns>A task representing the asynchronous operation, with a <see cref="RestResponse{TResponse}"/> result.</returns>
+        Task<RestResponse<TResponse>> OptionsAsync<TResponse>(CancellationToken cancellationToken = default)
+            where TResponse : new();
     }
 }
