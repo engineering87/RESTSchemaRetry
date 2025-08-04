@@ -47,6 +47,22 @@ namespace RESTSchemaRetry
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="RetryClient"/> class with the specified base URL, resource path, authentication token, and optional default headers.
+        /// Sets default retry parameters including the retry count, delay, and delay type.
+        /// </summary>
+        /// <param name="baseUrl">The base URL of the API endpoint.</param>
+        /// <param name="resource">The specific resource path to access within the API.</param>
+        /// <param name="authToken">The bearer token to use for authentication (optional).</param>
+        /// <param name="defaultHeaders">Optional dictionary of additional default headers to add to every request.</param>
+        public RetryClient(string baseUrl, string resource, string authToken = null, Dictionary<string, string> defaultHeaders = null)
+        {
+            _restApi = new RestApi(baseUrl, resource, authToken, defaultHeaders);
+            this.RetryNumber = DefaultRetry;
+            this.RetryDelay = TimeSpan.FromSeconds(DefaultDelay);
+            this.DelayType = BackoffTypes.Constant;
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="RetryClient"/> class with the specified base URL, resource path, 
         /// and a custom retry delay in milliseconds. Sets default retry count and delay type.
         /// </summary>
@@ -160,6 +176,130 @@ namespace RESTSchemaRetry
             this.RetryNumber = retryNumber >= 0 ? retryNumber : DefaultRetry;
             this.DelayType = backoffTypes;
         }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RetryClient"/> class with the specified base URL, resource path, 
+        /// and a custom retry delay in milliseconds. Sets default retry count and delay type.
+        /// </summary>
+        /// <param name="baseUrl">The base URL of the API endpoint.</param>
+        /// <param name="resource">The specific resource path to access within the API.</param>
+        /// <param name="retryDelayMs">The delay between retries, in milliseconds.</param>
+        /// <param name="authToken">The bearer token to use for authentication (optional).</param>
+        /// <param name="defaultHeaders">Optional dictionary of additional default headers to add to every request.</param>
+        public RetryClient(string baseUrl, string resource, int retryDelayMs, string authToken = null, Dictionary<string, string> defaultHeaders = null)
+        {
+            if (retryDelayMs < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(retryDelayMs), "Retry delay must be non-negative.");
+            }
+
+            _restApi = new RestApi(baseUrl, resource, authToken, defaultHeaders);
+            this.RetryNumber = DefaultRetry;
+            this.RetryDelay = TimeSpan.FromMilliseconds(retryDelayMs);
+            this.DelayType = BackoffTypes.Constant;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RetryClient"/> class with the specified base URL, resource path, 
+        /// and a custom backoff type for retry delays. Sets default retry count and delay duration.
+        /// </summary>
+        /// <param name="baseUrl">The base URL of the API endpoint.</param>
+        /// <param name="resource">The specific resource path to access within the API.</param>
+        /// <param name="backoffTypes">The backoff strategy to use for retry delays (e.g., constant, exponential).</param>
+        /// <param name="authToken">The bearer token to use for authentication (optional).</param>
+        /// <param name="defaultHeaders">Optional dictionary of additional default headers to add to every request.</param>
+        public RetryClient(string baseUrl, string resource, BackoffTypes backoffTypes, string authToken = null, Dictionary<string, string> defaultHeaders = null)
+        {
+            _restApi = new RestApi(baseUrl, resource, authToken, defaultHeaders);
+            this.RetryNumber = DefaultRetry;
+            this.RetryDelay = TimeSpan.FromSeconds(DefaultDelay);
+            this.DelayType = backoffTypes;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RetryClient"/> class with the specified base URL, resource path,
+        /// custom retry count, and delay in milliseconds. Sets a constant delay type for retries.
+        /// </summary>
+        /// <param name="baseUrl">The base URL of the API endpoint.</param>
+        /// <param name="resource">The specific resource path to access within the API.</param>
+        /// <param name="retryNumber">The number of retry attempts. If a negative value is provided, it defaults to 1.</param>
+        /// <param name="retryDelayMs">The delay between retries, in milliseconds.</param>
+        /// <param name="authToken">The bearer token to use for authentication (optional).</param>
+        /// <param name="defaultHeaders">Optional dictionary of additional default headers to add to every request.</param>
+        public RetryClient(string baseUrl, string resource, int retryNumber, int retryDelayMs, string authToken = null, Dictionary<string, string> defaultHeaders = null)
+        {
+            if (retryDelayMs < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(retryDelayMs), "Retry delay must be non-negative.");
+            }
+
+            _restApi = new RestApi(baseUrl, resource, authToken, defaultHeaders);
+            this.RetryDelay = TimeSpan.FromMilliseconds(retryDelayMs);
+            this.RetryNumber = retryNumber >= 0 ? retryNumber : DefaultRetry;
+            this.DelayType = BackoffTypes.Constant;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RetryClient"/> class with the specified base URL, resource path, 
+        /// custom retry count, delay in milliseconds, and backoff type for retry logic.
+        /// </summary>
+        /// <param name="baseUrl">The base URL of the API endpoint.</param>
+        /// <param name="resource">The specific resource path to access within the API.</param>
+        /// <param name="retryNumber">The number of retry attempts. If a negative value is provided, it defaults to 1.</param>
+        /// <param name="retryDelayMs">The delay between retries, in milliseconds.</param>
+        /// <param name="backoffTypes">The backoff strategy to use for retry delays (e.g., constant, exponential).</param>
+        /// <param name="authToken">The bearer token to use for authentication (optional).</param>
+        /// <param name="defaultHeaders">Optional dictionary of additional default headers to add to every request.</param>
+        public RetryClient(string baseUrl, string resource, int retryNumber, int retryDelayMs, BackoffTypes backoffTypes, string authToken = null, Dictionary<string, string> defaultHeaders = null)
+        {
+            if (retryDelayMs < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(retryDelayMs), "Retry delay must be non-negative.");
+            }
+
+            _restApi = new RestApi(baseUrl, resource, authToken, defaultHeaders);
+            this.RetryDelay = TimeSpan.FromMilliseconds(retryDelayMs);
+            this.RetryNumber = retryNumber >= 0 ? retryNumber : DefaultRetry;
+            this.DelayType = backoffTypes;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RetryClient"/> class with the specified base URL, resource path, 
+        /// custom retry count, and delay as a <see cref="TimeSpan"/>. Sets a constant delay type for retries.
+        /// </summary>
+        /// <param name="baseUrl">The base URL of the API endpoint.</param>
+        /// <param name="resource">The specific resource path to access within the API.</param>
+        /// <param name="retryNumber">The number of retry attempts. If a negative value is provided, it defaults to 1.</param>
+        /// <param name="retryDelay">The delay between retries, as a <see cref="TimeSpan"/>.</param>
+        /// <param name="authToken">The bearer token to use for authentication (optional).</param>
+        /// <param name="defaultHeaders">Optional dictionary of additional default headers to add to every request.</param>
+        public RetryClient(string baseUrl, string resource, int retryNumber, TimeSpan retryDelay, string authToken = null, Dictionary<string, string> defaultHeaders = null)
+        {
+            _restApi = new RestApi(baseUrl, resource, authToken, defaultHeaders);
+            this.RetryDelay = retryDelay;
+            this.RetryNumber = retryNumber >= 0 ? retryNumber : DefaultRetry;
+            this.DelayType = BackoffTypes.Constant;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RetryClient"/> class with the specified base URL, resource path, 
+        /// custom retry count, delay as a <see cref="TimeSpan"/>, and backoff type for retry logic.
+        /// </summary>
+        /// <param name="baseUrl">The base URL of the API endpoint.</param>
+        /// <param name="resource">The specific resource path to access within the API.</param>
+        /// <param name="retryNumber">The number of retry attempts. If a negative value is provided, it defaults to 1.</param>
+        /// <param name="retryDelay">The delay between retries, as a <see cref="TimeSpan"/>.</param>
+        /// <param name="backoffTypes">The backoff strategy to use for retry delays (e.g., constant, exponential).</param>
+        /// <param name="authToken">The bearer token to use for authentication (optional).</param>
+        /// <param name="defaultHeaders">Optional dictionary of additional default headers to add to every request.</param>
+        public RetryClient(string baseUrl, string resource, int retryNumber, TimeSpan retryDelay, BackoffTypes backoffTypes, string authToken = null, Dictionary<string, string> defaultHeaders = null)
+        {
+            _restApi = new RestApi(baseUrl, resource, authToken, defaultHeaders);
+            this.RetryDelay = retryDelay;
+            this.RetryNumber = retryNumber >= 0 ? retryNumber : DefaultRetry;
+            this.DelayType = backoffTypes;
+        }
+
 
         #endregion
 
