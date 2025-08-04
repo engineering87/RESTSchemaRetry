@@ -22,6 +22,9 @@ namespace RESTSchemaRetry.Provider
         public readonly string BaseUrl;
         public readonly string Resource;
 
+        private readonly Dictionary<string, string> _defaultHeaders;
+        private readonly string _authToken;
+
         /// <summary>
         /// Create an instance of the RestApi wrapper
         /// </summary>
@@ -33,7 +36,26 @@ namespace RESTSchemaRetry.Provider
 
             BaseUrl = baseUrl;
             Resource = resource;
-            _client = new RestClient(BaseUrl);
+            _client = new RestClient(new RestClientOptions(baseUrl));
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RestApi"/> class with optional authentication and custom headers.
+        /// </summary>
+        /// <param name="baseUrl">The base URL of the API (e.g., "https://api.example.com").</param>
+        /// <param name="resource">The resource endpoint path (e.g., "/users").</param>
+        /// <param name="authToken">Optional Bearer token for authorization. If provided, it will be included in all requests.</param>
+        /// <param name="defaultHeaders">Optional dictionary of custom headers to include in all requests.</param>
+        public RestApi(string baseUrl, string resource, string authToken = null, Dictionary<string, string> defaultHeaders = null)
+        {
+            CheckConfiguration(baseUrl, resource);
+
+            BaseUrl = baseUrl;
+            Resource = resource;
+            _authToken = authToken;
+            _defaultHeaders = defaultHeaders ?? [];
+
+            _client = new RestClient(new RestClientOptions(baseUrl));
         }
 
         #region Checks
@@ -61,6 +83,60 @@ namespace RESTSchemaRetry.Provider
 
         #endregion
 
+        #region Create Request
+
+        /// <summary>
+        /// Creates a RestSharp request with optional JSON body, authentication, and default headers.
+        /// </summary>
+        /// <param name="method">The HTTP method to use (e.g., GET, POST, PUT, DELETE).</param>
+        /// <param name="body">The object to be serialized as JSON and sent in the request body (optional).</param>
+        /// <returns>A configured RestRequest object.</returns>
+        private RestRequest CreateRequest(Method method, object body = null)
+        {
+            var request = new RestRequest(Resource, method);
+
+            if (body != null)
+                request.AddJsonBody(body);
+
+            // If an authentication token is set, add it as a Bearer token in the Authorization header
+            if (!string.IsNullOrEmpty(_authToken))
+                request.AddHeader("Authorization", $"Bearer {_authToken}");
+
+            // Add any default headers to the request, if they are defined
+            if (_defaultHeaders != null)
+            {
+                foreach (var header in _defaultHeaders)
+                {
+                    request.AddHeader(header.Key, header.Value);
+                }
+            }
+
+            return request;
+        }
+
+        /// <summary>
+        /// Creates a RestSharp request with optional query parameters, authentication, and default headers.
+        /// </summary>
+        /// <param name="method">The HTTP method to use (e.g., GET, POST, PUT, DELETE).</param>
+        /// <param name="queryParams">A dictionary of query parameter key-value pairs to be included in the request URL (optional).</param>
+        /// <returns>A configured RestRequest object.</returns>
+        private RestRequest CreateRequest(Method method, Dictionary<string, string> queryParams)
+        {
+            var request = CreateRequest(method);
+
+            if (queryParams != null)
+            {
+                foreach (var (key, value) in queryParams)
+                {
+                    request.AddParameter(key, value);
+                }
+            }
+
+            return request;
+        }
+
+        #endregion
+
         #region POST
 
         /// <inheritdoc />
@@ -70,12 +146,7 @@ namespace RESTSchemaRetry.Provider
         {
             CheckObject(objectToPost);
 
-            var request = new RestRequest(Resource, Method.Post)
-            {
-                RequestFormat = DataFormat.Json
-            };
-
-            request.AddJsonBody(objectToPost);
+            var request = CreateRequest(Method.Post, objectToPost);
 
             return AsyncHelper.RunSync(() => _client.ExecuteAsync<TResponse>(request));
         }
@@ -87,12 +158,7 @@ namespace RESTSchemaRetry.Provider
         {
             CheckObject(objectToPost);
 
-            var request = new RestRequest(Resource, Method.Post)
-            {
-                RequestFormat = DataFormat.Json
-            };
-
-            request.AddJsonBody(objectToPost);
+            var request = CreateRequest(Method.Post, objectToPost);
 
             return await _client.ExecuteAsync<TResponse>(request, cancellationToken: cancellationToken);
         }
@@ -116,7 +182,7 @@ namespace RESTSchemaRetry.Provider
         /// <inheritdoc />
         public virtual RestResponse<TResponse> Get<TResponse>(string paramName, string paramValue) where TResponse : new()
         {
-            var request = new RestRequest(Resource, Method.Get);
+            var request = CreateRequest(Method.Get);
 
             if (!string.IsNullOrEmpty(paramName))
             {
@@ -129,7 +195,7 @@ namespace RESTSchemaRetry.Provider
         /// <inheritdoc />
         public virtual async Task<RestResponse<TResponse>> GetAsync<TResponse>(string paramName, string paramValue, CancellationToken cancellationToken = default) where TResponse : new()
         {
-            var request = new RestRequest(Resource, Method.Get);
+            var request = CreateRequest(Method.Get);
 
             if (!string.IsNullOrEmpty(paramName))
             {
@@ -142,15 +208,7 @@ namespace RESTSchemaRetry.Provider
         /// <inheritdoc />
         public virtual RestResponse<TResponse> Get<TResponse>(Dictionary<string, string> paramsKeyValue) where TResponse : new()
         {
-            var request = new RestRequest(Resource, Method.Get);
-
-            if (paramsKeyValue != null)
-            {
-                foreach (var (key, value) in paramsKeyValue)
-                {
-                    request.AddParameter(key, value);
-                }
-            }
+            var request = CreateRequest(Method.Get, paramsKeyValue);
 
             return AsyncHelper.RunSync(() => _client.ExecuteAsync<TResponse>(request));
         }
@@ -158,15 +216,7 @@ namespace RESTSchemaRetry.Provider
         /// <inheritdoc />
         public virtual async Task<RestResponse<TResponse>> GetAsync<TResponse>(Dictionary<string, string> paramsKeyValue, CancellationToken cancellationToken = default) where TResponse : new()
         {
-            var request = new RestRequest(Resource, Method.Get);
-
-            if (paramsKeyValue != null)
-            {
-                foreach (var (key, value) in paramsKeyValue)
-                {
-                    request.AddParameter(key, value);
-                }
-            }
+            var request = CreateRequest(Method.Get, paramsKeyValue);
 
             return await _client.ExecuteAsync<TResponse>(request, cancellationToken);
         }
@@ -182,12 +232,7 @@ namespace RESTSchemaRetry.Provider
         {
             CheckObject(objectToPut);
 
-            var request = new RestRequest(Resource, Method.Put)
-            {
-                RequestFormat = DataFormat.Json
-            };
-
-            request.AddJsonBody(objectToPut);
+            var request = CreateRequest(Method.Put);
 
             return AsyncHelper.RunSync(() => _client.ExecuteAsync<TResponse>(request));
         }
@@ -199,12 +244,7 @@ namespace RESTSchemaRetry.Provider
         {
             CheckObject(objectToPut);
 
-            var request = new RestRequest(Resource, Method.Put)
-            {
-                RequestFormat = DataFormat.Json
-            };
-
-            request.AddJsonBody(objectToPut);
+            var request = CreateRequest(Method.Put);
 
             return await _client.ExecuteAsync<TResponse>(request, cancellationToken: cancellationToken);
         }
@@ -220,12 +260,7 @@ namespace RESTSchemaRetry.Provider
         {
             CheckObject(objectToDelete);
 
-            var request = new RestRequest(Resource, Method.Delete)
-            {
-                RequestFormat = DataFormat.Json
-            };
-
-            request.AddJsonBody(objectToDelete);
+            var request = CreateRequest(Method.Delete);
 
             return AsyncHelper.RunSync(() => _client.ExecuteAsync<TResponse>(request));
         }
@@ -237,12 +272,7 @@ namespace RESTSchemaRetry.Provider
         {
             CheckObject(objectToDelete);
 
-            var request = new RestRequest(Resource, Method.Delete)
-            {
-                RequestFormat = DataFormat.Json
-            };
-
-            request.AddJsonBody(objectToDelete);
+            var request = CreateRequest(Method.Delete);
 
             return await _client.ExecuteAsync<TResponse>(request, cancellationToken: cancellationToken);
         }
@@ -258,12 +288,7 @@ namespace RESTSchemaRetry.Provider
         {
             CheckObject(objectToPatch);
 
-            var request = new RestRequest(Resource, Method.Patch)
-            {
-                RequestFormat = DataFormat.Json
-            };
-
-            request.AddJsonBody(objectToPatch);
+            var request = CreateRequest(Method.Patch);
 
             return AsyncHelper.RunSync(() => _client.ExecuteAsync<TResponse>(request));
         }
@@ -275,12 +300,7 @@ namespace RESTSchemaRetry.Provider
         {
             CheckObject(objectToPatch);
 
-            var request = new RestRequest(Resource, Method.Patch)
-            {
-                RequestFormat = DataFormat.Json
-            };
-
-            request.AddJsonBody(objectToPatch);
+            var request = CreateRequest(Method.Patch);
 
             return await _client.ExecuteAsync<TResponse>(request, cancellationToken: cancellationToken);
         }
@@ -292,10 +312,7 @@ namespace RESTSchemaRetry.Provider
         /// <inheritdoc />
         public virtual RestResponse<TResponse> Options<TResponse>() where TResponse : new()
         {
-            var request = new RestRequest(Resource, Method.Options)
-            {
-                RequestFormat = DataFormat.Json
-            };
+            var request = CreateRequest(Method.Options);
 
             return AsyncHelper.RunSync(() => _client.ExecuteAsync<TResponse>(request));
         }
@@ -304,10 +321,7 @@ namespace RESTSchemaRetry.Provider
         public virtual async Task<RestResponse<TResponse>> OptionsAsync<TResponse>(CancellationToken cancellationToken = default) 
             where TResponse : new()
         {
-            var request = new RestRequest(Resource, Method.Options)
-            {
-                RequestFormat = DataFormat.Json
-            };
+            var request = CreateRequest(Method.Options);
 
             return await _client.ExecuteAsync<TResponse>(request, cancellationToken: cancellationToken);
         }

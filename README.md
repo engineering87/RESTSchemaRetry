@@ -62,7 +62,34 @@ There are multiple constructor to specify the REST API parameters.
 ```csharp
 var retryClient = new RetryClient("https://example.com/","your-rest-resourse");
 ```
-at this point the REST API requests can be performed.
+
+The client supports both default Bearer token authentication and the ability to inject custom headers.
+You can provide either an authentication token or a dictionary of custom headers as shown below:
+
+```csharp
+var retryClient = new RetryClient(
+    baseUrl: "https://example.com/",
+    resource: "your-rest-resource",
+    authToken: "your-bearer-token" // optional
+);
+```
+Or with custom headers:
+
+```csharp
+var customHeaders = new Dictionary<string, string>
+{
+    { "Authorization", "Bearer your-custom-token" },
+    { "X-Custom-Header", "value" }
+};
+
+var retryClient = new RetryClient(
+    baseUrl: "https://example.com/",
+    resource: "your-rest-resource",
+    defaultHeaders: customHeaders
+);
+```
+
+At this point the REST API requests can be performed.
 For example, below how to execute a POST request:
 
 ```csharp
