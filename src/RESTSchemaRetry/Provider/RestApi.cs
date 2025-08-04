@@ -98,12 +98,17 @@ namespace RESTSchemaRetry.Provider
             if (body != null)
                 request.AddJsonBody(body);
 
+            // If an authentication token is set, add it as a Bearer token in the Authorization header
             if (!string.IsNullOrEmpty(_authToken))
                 request.AddHeader("Authorization", $"Bearer {_authToken}");
 
-            foreach (var header in _defaultHeaders)
+            // Add any default headers to the request, if they are defined
+            if (_defaultHeaders != null)
             {
-                request.AddHeader(header.Key, header.Value);
+                foreach (var header in _defaultHeaders)
+                {
+                    request.AddHeader(header.Key, header.Value);
+                }
             }
 
             return request;
