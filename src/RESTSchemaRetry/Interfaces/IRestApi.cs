@@ -1,4 +1,4 @@
-﻿// (c) 2019 Francesco Del Re <francesco.delre.87@gmail.com>
+﻿// (c) 2019-2025 Francesco Del Re <francesco.delre.87@gmail.com>
 // This code is licensed under MIT license (see LICENSE.txt for details)
 using RestSharp;
 using System.Collections.Generic;
@@ -173,6 +173,27 @@ namespace RESTSchemaRetry.Interfaces
         /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>RestResponse task.</returns>
         Task<RestResponse<TResponse>> OptionsAsync<TResponse>(CancellationToken cancellationToken = default)
+            where TResponse : new();
+
+        /// <summary>
+        /// Executes a synchronous HEAD request (headers-only; response body is typically empty).
+        /// </summary>
+        /// <typeparam name="TResponse">
+        /// Expected response DTO type (usually unused for HEAD; will be default(TResponse)).
+        /// </typeparam>
+        /// <param name="queryParams">Optional query string parameters.</param>
+        RestResponse<TResponse> Head<TResponse>(Dictionary<string, string> queryParams = null)
+            where TResponse : new();
+
+        /// <summary>
+        /// Executes an asynchronous HEAD request (headers-only; response body is typically empty).
+        /// </summary>
+        /// <typeparam name="TResponse">
+        /// Expected response DTO type (usually unused for HEAD; will be default(TResponse)).
+        /// </typeparam>
+        /// <param name="queryParams">Optional query string parameters.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        Task<RestResponse<TResponse>> HeadAsync<TResponse>(Dictionary<string, string> queryParams = null, CancellationToken cancellationToken = default)
             where TResponse : new();
     }
 }

@@ -1,4 +1,4 @@
-﻿// (c) 2019 Francesco Del Re <francesco.delre.87@gmail.com>
+﻿// (c) 2019-2025 Francesco Del Re <francesco.delre.87@gmail.com>
 // This code is licensed under MIT license (see LICENSE.txt for details)
 using RestSharp;
 using System.Collections.Generic;
@@ -7,6 +7,29 @@ using System.Threading.Tasks;
 
 namespace RESTSchemaRetry.Interfaces
 {
+    /// <summary>
+    /// Abstraction for an HTTP client with retry/resilience capabilities.
+    /// 
+    /// This interface mirrors common HTTP verbs (GET, POST, PUT, PATCH, DELETE, OPTIONS) and
+    /// provides asynchronous counterparts. It also exposes HEAD for metadata checks and two
+    /// generic "send" methods to support uncommon verbs or dynamic resource paths.
+    /// 
+    /// <remarks>
+    /// <para>
+    /// <b>Resilience:</b> An implementation may wrap calls with retry/circuit-breaker policies
+    /// (e.g., using Polly). Transient failures (timeouts, 5xx, network faults) are typically
+    /// candidates for retries, whereas client errors (4xx) should not be retried.
+    /// </para>
+    /// <para>
+    /// <b>Serialization:</b> Methods using <c>TRequest</c> assume JSON serialization for the body,
+    /// and methods using <c>TResponse</c> assume JSON deserialization of the response content.
+    /// </para>
+    /// <para>
+    /// <b>Cancellation:</b> Async methods accept a <see cref="CancellationToken"/> to cancel
+    /// in-flight HTTP operations.
+    /// </para>
+    /// </remarks>
+    /// </summary>
     public interface IRetryClient
     {
         /// <summary>
@@ -77,6 +100,16 @@ namespace RESTSchemaRetry.Interfaces
         /// <param name="paramsKeyValue">A dictionary of query parameter key-value pairs.</param>
         /// <returns>A <see cref="RestResponse{TResponse}"/> containing the response.</returns>
         RestResponse<TResponse> Get<TResponse>(Dictionary<string, string> paramsKeyValue)
+            where TResponse : new();
+
+        /// <summary>
+        /// Executes an asynchronous GET request with multiple query parameters.
+        /// </summary>
+        /// <typeparam name="TResponse">The expected response type.</typeparam>
+        /// <param name="paramsKeyValue">A dictionary of query parameter key-value pairs.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>A task representing the asynchronous operation, with a <see cref="RestResponse{TResponse}"/> result.</returns>
+        Task<RestResponse<TResponse>> GetAsync<TResponse>(Dictionary<string, string> paramsKeyValue, CancellationToken cancellationToken = default)
             where TResponse : new();
 
         /// <summary>
@@ -163,6 +196,40 @@ namespace RESTSchemaRetry.Interfaces
         /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>A task representing the asynchronous operation, with a <see cref="RestResponse{TResponse}"/> result.</returns>
         Task<RestResponse<TResponse>> OptionsAsync<TResponse>(CancellationToken cancellationToken = default)
+            where TResponse : new();
+
+        /// <summary>
+        /// Executes a synchronous HEAD request.
+        /// </summary>
+        /// <typeparam name="TResponse">
+        /// The expected response type. For HEAD requests, servers normally return no body;
+        /// therefore <c>TResponse</c> will typically be unused (default value) and you will
+        /// inspect status code and headers in <see cref="RestResponse{TResponse}"/>.
+        /// </typeparam>
+        /// <param name="queryParams">Optional query string parameters appended to the request URL.</param>
+        /// <returns>A <see cref="RestResponse{TResponse}"/> containing status and headers.</returns>
+        /// <remarks>
+        /// Use HEAD to check resource existence, preconditions, caching headers (ETag/Last-Modified),
+        /// or content length without downloading the payload.
+        /// </remarks>
+        RestResponse<TResponse> Head<TResponse>(Dictionary<string, string> queryParams = null)
+            where TResponse : new();
+
+        /// <summary>
+        /// Executes an asynchronous HEAD request.
+        /// </summary>
+        /// <typeparam name="TResponse">
+        /// The expected response type. For HEAD requests, servers normally return no body;
+        /// therefore <c>TResponse</c> will typically be unused (default value) and you will
+        /// inspect status code and headers in <see cref="RestResponse{TResponse}"/>.
+        /// </typeparam>
+        /// <param name="queryParams">Optional query string parameters appended to the request URL.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>A task with a <see cref="RestResponse{TResponse}"/> containing status and headers.</returns>
+        /// <remarks>
+        /// Use HEAD to validate links, check authorization, or retrieve caching metadata before issuing a GET.
+        /// </remarks>
+        Task<RestResponse<TResponse>> HeadAsync<TResponse>(Dictionary<string, string> queryParams = null, CancellationToken cancellationToken = default)
             where TResponse : new();
     }
 }

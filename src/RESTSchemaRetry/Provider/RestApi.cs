@@ -1,4 +1,4 @@
-﻿// (c) 2019 Francesco Del Re <francesco.delre.87@gmail.com>
+﻿// (c) 2019-2025 Francesco Del Re <francesco.delre.87@gmail.com>
 // This code is licensed under MIT license (see LICENSE.txt for details)
 using System;
 using RESTSchemaRetry.Exceptions;
@@ -115,7 +115,37 @@ namespace RESTSchemaRetry.Provider
         }
 
         /// <summary>
-        /// Creates a RestSharp request with optional query parameters, authentication, and default headers.
+        /// Creates a request with optional dynamic resource, JSON body, auth and query parameters.
+        /// </summary>
+        private RestRequest CreateRequest(Method method, string resource, object body = null, Dictionary<string, string> queryParams = null)
+        {
+            var req = new RestRequest(string.IsNullOrWhiteSpace(resource) ? Resource : resource, method);
+
+            if (body != null)
+                req.AddJsonBody(body);
+
+            if (queryParams != null)
+                foreach (var (key, value) in queryParams)
+                    req.AddQueryParameter(key, value);
+
+            AddAuthAndHeaders(req);
+            return req;
+        }
+
+        /// <summary>Adds Authorization (Bearer) and default headers to the request.</summary>
+        /// <param name="request">Target <see cref="RestRequest"/>.</param>
+        private void AddAuthAndHeaders(RestRequest request)
+        {
+            if (!string.IsNullOrEmpty(_authToken))
+                request.AddHeader("Authorization", $"Bearer {_authToken}");
+
+            if (_defaultHeaders != null)
+                foreach (var header in _defaultHeaders)
+                    request.AddHeader(header.Key, header.Value);
+        }
+
+        /// <summary>
+        /// Creates a request with optional query parameters, authentication, and default headers.
         /// </summary>
         /// <param name="method">The HTTP method to use (e.g., GET, POST, PUT, DELETE).</param>
         /// <param name="queryParams">A dictionary of query parameter key-value pairs to be included in the request URL (optional).</param>
@@ -232,7 +262,7 @@ namespace RESTSchemaRetry.Provider
         {
             CheckObject(objectToPut);
 
-            var request = CreateRequest(Method.Put);
+            var request = CreateRequest(Method.Put, objectToPut);
 
             return AsyncHelper.RunSync(() => _client.ExecuteAsync<TResponse>(request));
         }
@@ -244,7 +274,7 @@ namespace RESTSchemaRetry.Provider
         {
             CheckObject(objectToPut);
 
-            var request = CreateRequest(Method.Put);
+            var request = CreateRequest(Method.Put, objectToPut);
 
             return await _client.ExecuteAsync<TResponse>(request, cancellationToken: cancellationToken);
         }
@@ -260,7 +290,7 @@ namespace RESTSchemaRetry.Provider
         {
             CheckObject(objectToDelete);
 
-            var request = CreateRequest(Method.Delete);
+            var request = CreateRequest(Method.Delete, objectToDelete);
 
             return AsyncHelper.RunSync(() => _client.ExecuteAsync<TResponse>(request));
         }
@@ -272,7 +302,7 @@ namespace RESTSchemaRetry.Provider
         {
             CheckObject(objectToDelete);
 
-            var request = CreateRequest(Method.Delete);
+            var request = CreateRequest(Method.Delete, objectToDelete);
 
             return await _client.ExecuteAsync<TResponse>(request, cancellationToken: cancellationToken);
         }
@@ -288,7 +318,7 @@ namespace RESTSchemaRetry.Provider
         {
             CheckObject(objectToPatch);
 
-            var request = CreateRequest(Method.Patch);
+            var request = CreateRequest(Method.Patch, objectToPatch);
 
             return AsyncHelper.RunSync(() => _client.ExecuteAsync<TResponse>(request));
         }
@@ -300,7 +330,7 @@ namespace RESTSchemaRetry.Provider
         {
             CheckObject(objectToPatch);
 
-            var request = CreateRequest(Method.Patch);
+            var request = CreateRequest(Method.Patch, objectToPatch);
 
             return await _client.ExecuteAsync<TResponse>(request, cancellationToken: cancellationToken);
         }
@@ -318,12 +348,34 @@ namespace RESTSchemaRetry.Provider
         }
 
         /// <inheritdoc />
-        public virtual async Task<RestResponse<TResponse>> OptionsAsync<TResponse>(CancellationToken cancellationToken = default) 
+        public virtual async Task<RestResponse<TResponse>> OptionsAsync<TResponse>(CancellationToken cancellationToken = default)
             where TResponse : new()
         {
             var request = CreateRequest(Method.Options);
 
             return await _client.ExecuteAsync<TResponse>(request, cancellationToken: cancellationToken);
+        }
+
+        #endregion
+
+        #region HEAD
+
+        /// <inheritdoc />
+        public virtual RestResponse<TResponse> Head<TResponse>(Dictionary<string, string> queryParams = null)
+            where TResponse : new()
+        {
+            var request = CreateRequest(Method.Head, resource: null, body: null, queryParams: queryParams);
+            return AsyncHelper.RunSync(() => _client.ExecuteAsync<TResponse>(request));
+        }
+
+        /// <inheritdoc />
+        public virtual async Task<RestResponse<TResponse>> HeadAsync<TResponse>(
+            Dictionary<string, string> queryParams = null,
+            CancellationToken cancellationToken = default)
+            where TResponse : new()
+        {
+            var request = CreateRequest(Method.Head, resource: null, body: null, queryParams: queryParams);
+            return await _client.ExecuteAsync<TResponse>(request, cancellationToken).ConfigureAwait(false);
         }
 
         #endregion

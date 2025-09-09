@@ -300,7 +300,6 @@ namespace RESTSchemaRetry
             this.DelayType = backoffTypes;
         }
 
-
         #endregion
 
         /// <summary>
@@ -492,6 +491,29 @@ namespace RESTSchemaRetry
             where TResponse : new()
         {
             return Retry(() => _restApi.Get<TResponse>(paramsKeyValue));
+        }
+
+        /// <summary>
+        /// Executes an asynchronous GET request with multiple query parameters.
+        /// </summary>
+        /// <typeparam name="TResponse">Expected response DTO type.</typeparam>
+        /// <param name="paramsKeyValue">
+        /// Dictionary of query string parameters. If <c>null</c>, an empty dictionary is used.
+        /// </param>
+        /// <param name="cancellationToken">Cancellation token to abort the in-flight HTTP call.</param>
+        /// <returns>
+        /// A task producing a <see cref="RestResponse{TResponse}"/> with the deserialized response,
+        /// status code, and headers.
+        /// </returns>
+        /// <remarks>
+        /// Use this overload when you need to pass more than one query parameter. Parameters are appended
+        /// to the request URL as a query string.
+        /// </remarks>
+        public async Task<RestResponse<TResponse>> GetAsync<TResponse>(Dictionary<string, string> paramsKeyValue, CancellationToken cancellationToken = default) 
+            where TResponse : new()
+        {
+            var qp = paramsKeyValue ?? [];
+            return await _restApi.GetAsync<TResponse>(qp, cancellationToken);
         }
 
         /// <summary>
@@ -732,6 +754,42 @@ namespace RESTSchemaRetry
             where TResponse : new()
         {
             return await RetryAsync(() => _restApi.OptionsAsync<TResponse>(cancellationToken));
+        }
+
+        /// <summary>
+        /// Executes a synchronous HEAD request (headers-only; no response body).
+        /// Use this to verify resource existence or retrieve caching metadata (ETag, Last-Modified)
+        /// without downloading the payload.
+        /// </summary>
+        /// <typeparam name="TResponse">
+        /// Expected response DTO type. For HEAD responses the body is typically empty; the
+        /// typed response is still useful to access status code and headers via RestResponse{TResponse}.
+        /// </typeparam>
+        /// <param name="queryParams">Optional query string parameters appended to the request URL.</param>
+        /// <returns>A <see cref="RestResponse{TResponse}"/> containing status code and headers.</returns>
+        public RestResponse<TResponse> Head<TResponse>(Dictionary<string, string> queryParams = null)
+            where TResponse : new()
+        {
+            var qp = queryParams ?? [];
+            return _restApi.Head<TResponse>(qp);
+        }
+
+        /// <summary>
+        /// Executes an asynchronous HEAD request (headers-only; no response body).
+        /// Prefer HEAD over GET when you only need headers (e.g., to check ETag/Last-Modified or resource existence).
+        /// </summary>
+        /// <typeparam name="TResponse">
+        /// Expected response DTO type. For HEAD responses the body is typically empty; the
+        /// typed response is still useful to access status code and headers via RestResponse{TResponse}.
+        /// </typeparam>
+        /// <param name="queryParams">Optional query string parameters appended to the request URL.</param>
+        /// <param name="cancellationToken">Cancellation token to abort the in-flight HTTP call.</param>
+        /// <returns>A task producing a <see cref="RestResponse{TResponse}"/> with status code and headers.</returns>
+        public async Task<RestResponse<TResponse>> HeadAsync<TResponse>(Dictionary<string, string> queryParams = null, CancellationToken cancellationToken = default)
+            where TResponse : new()
+        {
+            var qp = queryParams ?? [];
+            return await _restApi.HeadAsync<TResponse>(qp, cancellationToken);
         }
     }
 }
