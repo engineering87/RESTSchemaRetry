@@ -3,6 +3,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using RESTSchemaRetry.Interfaces;
 using System;
+using System.Collections.Generic;
 
 namespace RESTSchemaRetry.Middleware
 {
@@ -18,15 +19,51 @@ namespace RESTSchemaRetry.Middleware
         /// <exception cref="ArgumentException">Thrown if <paramref name="baseUrl"/> or <paramref name="resource"/> is null or empty.</exception>
         public static IServiceCollection AddRetryClient(this IServiceCollection services, string baseUrl, string resource)
         {
-            if (string.IsNullOrWhiteSpace(baseUrl))
-                throw new ArgumentException("Base URL cannot be null or empty.", nameof(baseUrl));
+            ValidateBaseUrlAndResource(baseUrl, resource, out var normalizedResource);
+
+            services.AddScoped<IRetryClient>(provider => new RetryClient(baseUrl, normalizedResource));
+
+            return services;
+        }
+
+        /// <summary>
+        /// Registers IRetryClient/IRestApi with optional Bearer token and default headers.
+        /// </summary>
+        /// <param name="services">The DI service collection.</param>
+        /// <param name="baseUrl">Absolute base URL for the API.</param>
+        /// <param name="resource">Default resource path.</param>
+        /// <param name="authToken">Optional Bearer token applied to all requests.</param>
+        /// <param name="defaultHeaders">Optional default headers applied to all requests.</param>
+        /// <returns>The same <see cref="IServiceCollection"/>.</returns>
+        public static IServiceCollection AddRetryClient(
+            this IServiceCollection services,
+            string baseUrl,
+            string resource,
+            string authToken,
+            IDictionary<string, string> defaultHeaders = null)
+        {
+            ValidateBaseUrlAndResource(baseUrl, resource, out var normalizedResource);
+
+            var headersCopy = defaultHeaders is null ? null : new Dictionary<string, string>(defaultHeaders);
+
+            services.AddScoped<IRetryClient>(provider => new RetryClient(baseUrl, normalizedResource, authToken, headersCopy));
+
+            return services;
+        }
+
+        /// <summary>
+        /// Ensures the base URL is an absolute URI and the resource is non-empty;
+        /// normalizes the resource to start with '/'.
+        /// </summary>
+        private static void ValidateBaseUrlAndResource(string baseUrl, string resource, out string normalizedResource)
+        {
+            if (!Uri.TryCreate(baseUrl, UriKind.Absolute, out _))
+                throw new ArgumentException("Base URL must be a valid absolute URI.", nameof(baseUrl));
 
             if (string.IsNullOrWhiteSpace(resource))
                 throw new ArgumentException("Resource cannot be null or empty.", nameof(resource));
 
-            services.AddScoped<IRetryClient>(provider => new RetryClient(baseUrl, resource));
-
-            return services;
+            normalizedResource = resource.StartsWith("/") ? resource : "/" + resource;
         }
     }
 }

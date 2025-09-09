@@ -13,8 +13,18 @@ using System.Threading;
 namespace RESTSchemaRetry.Provider
 {
     /// <summary>
-    /// RestSharp wrapper class to RestSharp library
+    /// General-purpose, strongly-typed HTTP client built on top of RestSharp, designed with
+    /// resilience in mind. It centralizes base URL, resource path, auth, and default headers,
+    /// and exposes sync/async methods for common HTTP verbs (GET, POST, PUT, PATCH, DELETE,
+    /// OPTIONS, HEAD).
     /// </summary>
+    /// <example>
+    /// <code>
+    /// var api = new RestApi("https://api.example.com", "/users", authToken: token);
+    /// var res = await api.GetAsync<UserDto>(cancellationToken);
+    /// if (res.IsSuccessful) { var user = res.Data; }
+    /// </code>
+    /// </example>
     public class RestApi : IRestApi
     {
         private readonly RestClient _client;
