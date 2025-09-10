@@ -168,7 +168,7 @@ namespace RESTSchemaRetry.Provider
             {
                 foreach (var (key, value) in queryParams)
                 {
-                    request.AddParameter(key, value);
+                    request.AddQueryParameter(key, value);
                 }
             }
 

@@ -1,8 +1,10 @@
 ﻿// (c) 2019 Francesco Del Re <francesco.delre.87@gmail.com>
 // This code is licensed under MIT license (see LICENSE.txt for details)
+using RestSharp;
 using System.Collections.Generic;
 using System.Net;
-using RestSharp;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace RESTSchemaRetry
 {
@@ -44,7 +46,17 @@ namespace RESTSchemaRetry
             if (response is null)
                 return false;
 
-            return IsTransientStatusCode(response.StatusCode);
+            if(IsTransientStatusCode(response.StatusCode))
+                return true;
+
+            var isTimeout = response.ResponseStatus == ResponseStatus.TimedOut;
+
+            var ex = response.ErrorException;
+            var isNetworkError =
+                (response.ResponseStatus == ResponseStatus.Error && ex is HttpRequestException) ||
+                (response.ResponseStatus == ResponseStatus.Error && ex is TaskCanceledException);
+
+            return isTimeout || isNetworkError;
         }
     }
 }

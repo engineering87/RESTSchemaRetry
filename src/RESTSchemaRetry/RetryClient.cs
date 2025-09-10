@@ -317,19 +317,16 @@ namespace RESTSchemaRetry
         {
             var response = await action();
 
-            if (!RetryEngine.IsTransientStatusCode(response) || DelayType == BackoffTypes.NoRetry)
-                return response;
-
             int retry = 0;
-            while (response.StatusCode != HttpStatusCode.Accepted)
+            while (RetryEngine.IsTransientStatusCode(response)
+                   && DelayType != BackoffTypes.NoRetry
+                   && retry < this.RetryNumber)
             {
-                if (retry >= this.RetryNumber)
-                    break;
-
                 await Task.Delay(GetDelay(retry));
                 response = await action();
                 retry++;
             }
+
             return response;
         }
 
@@ -349,19 +346,16 @@ namespace RESTSchemaRetry
         {
             var response = action();
 
-            if (!RetryEngine.IsTransientStatusCode(response) || DelayType == BackoffTypes.NoRetry)
-                return response;
-
             int retry = 0;
-            while (response.StatusCode != HttpStatusCode.Accepted)
+            while (RetryEngine.IsTransientStatusCode(response)
+                   && DelayType != BackoffTypes.NoRetry
+                   && retry < this.RetryNumber)
             {
-                if (retry >= this.RetryNumber)
-                    break;
-
                 Task.Delay(GetDelay(retry)).Wait();
                 response = action();
                 retry++;
             }
+
             return response;
         }
 
@@ -513,7 +507,7 @@ namespace RESTSchemaRetry
             where TResponse : new()
         {
             var qp = paramsKeyValue ?? [];
-            return await _restApi.GetAsync<TResponse>(qp, cancellationToken);
+            return await RetryAsync(() => _restApi.GetAsync<TResponse>(qp, cancellationToken));
         }
 
         /// <summary>
@@ -771,7 +765,7 @@ namespace RESTSchemaRetry
             where TResponse : new()
         {
             var qp = queryParams ?? [];
-            return _restApi.Head<TResponse>(qp);
+            return Retry(() => _restApi.Head<TResponse>(qp));
         }
 
         /// <summary>
@@ -789,7 +783,7 @@ namespace RESTSchemaRetry
             where TResponse : new()
         {
             var qp = queryParams ?? [];
-            return await _restApi.HeadAsync<TResponse>(qp, cancellationToken);
+            return await RetryAsync(() => _restApi.HeadAsync<TResponse>(qp, cancellationToken));
         }
     }
 }
