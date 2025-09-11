@@ -200,7 +200,9 @@ namespace RESTSchemaRetry.Provider
 
             var request = CreateRequest(Method.Post, objectToPost);
 
-            return await _client.ExecuteAsync<TResponse>(request, cancellationToken: cancellationToken);
+            return await _client
+                .ExecuteAsync<TResponse>(request, cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
         }
 
         #endregion
@@ -226,7 +228,7 @@ namespace RESTSchemaRetry.Provider
 
             if (!string.IsNullOrEmpty(paramName))
             {
-                request.AddParameter(paramName, paramValue);
+                request.AddQueryParameter(paramName, paramValue);
             }
 
             return AsyncHelper.RunSync(() => _client.ExecuteAsync<TResponse>(request));
@@ -239,10 +241,12 @@ namespace RESTSchemaRetry.Provider
 
             if (!string.IsNullOrEmpty(paramName))
             {
-                request.AddParameter(paramName, paramValue);
+                request.AddQueryParameter(paramName, paramValue);
             }
 
-            return await _client.ExecuteAsync<TResponse>(request, cancellationToken: cancellationToken);
+            return await _client
+                .ExecuteAsync<TResponse>(request, cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
         }
 
         /// <inheritdoc />
@@ -258,7 +262,9 @@ namespace RESTSchemaRetry.Provider
         {
             var request = CreateRequest(Method.Get, paramsKeyValue);
 
-            return await _client.ExecuteAsync<TResponse>(request, cancellationToken);
+            return await _client
+                .ExecuteAsync<TResponse>(request, cancellationToken)
+                .ConfigureAwait(false);
         }
 
         #endregion
@@ -286,7 +292,9 @@ namespace RESTSchemaRetry.Provider
 
             var request = CreateRequest(Method.Put, objectToPut);
 
-            return await _client.ExecuteAsync<TResponse>(request, cancellationToken: cancellationToken);
+            return await _client
+                .ExecuteAsync<TResponse>(request, cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
         }
 
         #endregion
@@ -314,7 +322,9 @@ namespace RESTSchemaRetry.Provider
 
             var request = CreateRequest(Method.Delete, objectToDelete);
 
-            return await _client.ExecuteAsync<TResponse>(request, cancellationToken: cancellationToken);
+            return await _client
+                .ExecuteAsync<TResponse>(request, cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
         }
 
         #endregion
@@ -342,7 +352,9 @@ namespace RESTSchemaRetry.Provider
 
             var request = CreateRequest(Method.Patch, objectToPatch);
 
-            return await _client.ExecuteAsync<TResponse>(request, cancellationToken: cancellationToken);
+            return await _client
+                .ExecuteAsync<TResponse>(request, cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
         }
 
         #endregion
@@ -363,7 +375,9 @@ namespace RESTSchemaRetry.Provider
         {
             var request = CreateRequest(Method.Options);
 
-            return await _client.ExecuteAsync<TResponse>(request, cancellationToken: cancellationToken);
+            return await _client
+                .ExecuteAsync<TResponse>(request, cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
         }
 
         #endregion
@@ -385,7 +399,9 @@ namespace RESTSchemaRetry.Provider
             where TResponse : new()
         {
             var request = CreateRequest(Method.Head, resource: null, body: null, queryParams: queryParams);
-            return await _client.ExecuteAsync<TResponse>(request, cancellationToken).ConfigureAwait(false);
+            return await _client
+                .ExecuteAsync<TResponse>(request, cancellationToken)
+                .ConfigureAwait(false);
         }
 
         #endregion
