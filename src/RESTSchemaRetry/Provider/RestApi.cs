@@ -1,14 +1,14 @@
 ﻿// (c) 2019-2025 Francesco Del Re <francesco.delre.87@gmail.com>
 // This code is licensed under MIT license (see LICENSE.txt for details)
-using System;
 using RESTSchemaRetry.Exceptions;
+using RESTSchemaRetry.Helper;
+using RESTSchemaRetry.Interfaces;
+using RESTSchemaRetry.Utils;
 using RestSharp;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
-using System.Threading.Tasks;
-using RESTSchemaRetry.Helper;
-using RESTSchemaRetry.Interfaces;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace RESTSchemaRetry.Provider
 {
@@ -42,8 +42,7 @@ namespace RESTSchemaRetry.Provider
         /// <param name="resource"></param>
         public RestApi(string baseUrl, string resource)
         {
-            CheckConfiguration(baseUrl, resource);
-
+            (BaseUrl, Resource) = UrlNormalization.Normalize(baseUrl, resource);
             BaseUrl = baseUrl;
             Resource = resource;
             _client = new RestClient(new RestClientOptions(baseUrl));
@@ -58,8 +57,7 @@ namespace RESTSchemaRetry.Provider
         /// <param name="defaultHeaders">Optional dictionary of custom headers to include in all requests.</param>
         public RestApi(string baseUrl, string resource, string authToken = null, Dictionary<string, string> defaultHeaders = null)
         {
-            CheckConfiguration(baseUrl, resource);
-
+            (BaseUrl, Resource) = UrlNormalization.Normalize(baseUrl, resource);
             BaseUrl = baseUrl;
             Resource = resource;
             _authToken = authToken;
@@ -69,19 +67,6 @@ namespace RESTSchemaRetry.Provider
         }
 
         #region Checks
-
-        private static void CheckConfiguration(string baseUrl, string resource)
-        {
-            if (string.IsNullOrEmpty(baseUrl))
-            {
-                throw new ArgumentException(Messages.BaseUrlInvalid);
-            }
-
-            if (string.IsNullOrEmpty(resource))
-            {
-                throw new ArgumentException(Messages.ResourceInvalid);
-            }
-        }
 
         private static void CheckObject(object objectBody)
         {

@@ -4,6 +4,7 @@ using RestSharp;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
+using System.Net.Sockets;
 using System.Threading.Tasks;
 
 namespace RESTSchemaRetry
@@ -54,7 +55,8 @@ namespace RESTSchemaRetry
             var ex = response.ErrorException;
             var isNetworkError =
                 (response.ResponseStatus == ResponseStatus.Error && ex is HttpRequestException) ||
-                (response.ResponseStatus == ResponseStatus.Error && ex is TaskCanceledException);
+                (response.ResponseStatus == ResponseStatus.Error && ex is TaskCanceledException) ||
+                (response.ResponseStatus == ResponseStatus.Error && ex is SocketException);
 
             return isTimeout || isNetworkError;
         }

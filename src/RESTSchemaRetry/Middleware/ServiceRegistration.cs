@@ -3,6 +3,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using RESTSchemaRetry;
 using RESTSchemaRetry.Interfaces;
+using RESTSchemaRetry.Utils;
 using System;
 using System.Collections.Generic;
 
@@ -20,9 +21,9 @@ namespace RESTSchemaRetry.Middleware
         /// <exception cref="ArgumentException">Thrown if <paramref name="baseUrl"/> or <paramref name="resource"/> is null or empty.</exception>
         public static IServiceCollection AddRetryClient(this IServiceCollection services, string baseUrl, string resource)
         {
-            ValidateBaseUrlAndResource(baseUrl, resource, out var normalizedResource);
+            var (normalizedBaseUrl, normalizedResource) = UrlNormalization.Normalize(baseUrl, resource);
 
-            services.AddScoped<IRetryClient>(provider => new RetryClient(baseUrl, normalizedResource));
+            services.AddScoped<IRetryClient>(provider => new RetryClient(normalizedBaseUrl, normalizedResource));
 
             return services;
         }
@@ -43,28 +44,13 @@ namespace RESTSchemaRetry.Middleware
             string authToken,
             IDictionary<string, string> defaultHeaders = null)
         {
-            ValidateBaseUrlAndResource(baseUrl, resource, out var normalizedResource);
+            var (normalizedBaseUrl, normalizedResource) = UrlNormalization.Normalize(baseUrl, resource);
 
             var headersCopy = defaultHeaders is null ? null : new Dictionary<string, string>(defaultHeaders);
 
-            services.AddScoped<IRetryClient>(provider => new RetryClient(baseUrl, normalizedResource, authToken, headersCopy));
+            services.AddScoped<IRetryClient>(provider => new RetryClient(normalizedBaseUrl, normalizedResource, authToken, headersCopy));
 
             return services;
-        }
-
-        /// <summary>
-        /// Ensures the base URL is an absolute URI and the resource is non-empty;
-        /// normalizes the resource to start with '/'.
-        /// </summary>
-        private static void ValidateBaseUrlAndResource(string baseUrl, string resource, out string normalizedResource)
-        {
-            if (!Uri.TryCreate(baseUrl, UriKind.Absolute, out _))
-                throw new ArgumentException("Base URL must be a valid absolute URI.", nameof(baseUrl));
-
-            if (string.IsNullOrWhiteSpace(resource))
-                throw new ArgumentException("Resource cannot be null or empty.", nameof(resource));
-
-            normalizedResource = resource.StartsWith("/") ? resource : "/" + resource;
         }
     }
 }

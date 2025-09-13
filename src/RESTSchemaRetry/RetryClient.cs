@@ -7,7 +7,6 @@ using RESTSchemaRetry.Utils;
 using RestSharp;
 using System;
 using System.Collections.Generic;
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -25,8 +24,8 @@ namespace RESTSchemaRetry
 
         #region Default
 
-        private const int DefaultRetry = 1;
-        private const int DefaultDelay = 5; // sec
+        private const int DefaultRetry = 3;
+        private const int DefaultDelay = 1; // sec
 
         #endregion
 
@@ -42,8 +41,8 @@ namespace RESTSchemaRetry
         {
             _restApi = new RestApi(baseUrl, resource);
             this.RetryNumber = DefaultRetry;
-            this.RetryDelay = new TimeSpan(0, 0, 0, DefaultDelay);
-            this.DelayType = BackoffTypes.Constant;
+            this.RetryDelay = TimeSpan.FromSeconds(DefaultDelay);
+            this.DelayType = BackoffTypes.ExponentialFullJitter;
         }
 
         /// <summary>
@@ -59,7 +58,7 @@ namespace RESTSchemaRetry
             _restApi = new RestApi(baseUrl, resource, authToken, defaultHeaders);
             this.RetryNumber = DefaultRetry;
             this.RetryDelay = TimeSpan.FromSeconds(DefaultDelay);
-            this.DelayType = BackoffTypes.Constant;
+            this.DelayType = BackoffTypes.ExponentialFullJitter;
         }
 
         /// <summary>
@@ -78,8 +77,8 @@ namespace RESTSchemaRetry
 
             _restApi = new RestApi(baseUrl, resource);
             this.RetryNumber = DefaultRetry;
-            this.RetryDelay = new TimeSpan(0, 0, 0, 0, retryDelayMs);
-            this.DelayType = BackoffTypes.Constant;
+            this.RetryDelay = TimeSpan.FromMilliseconds(retryDelayMs);
+            this.DelayType = BackoffTypes.ExponentialFullJitter;
         }
 
         /// <summary>
@@ -93,19 +92,18 @@ namespace RESTSchemaRetry
         {
             _restApi = new RestApi(baseUrl, resource);
             this.RetryNumber = DefaultRetry;
-            this.RetryDelay = new TimeSpan(0, 0, 0, DefaultDelay);
+            this.RetryDelay = TimeSpan.FromSeconds(DefaultDelay);
             this.DelayType = backoffTypes;
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RetryClient"/> class with the specified base URL, resource path,
-        /// custom retry count, and delay in milliseconds. Sets a constant delay type for retries.
+        /// custom retry count, and delay in milliseconds. Sets a ExponentialFullJitter delay type for retries.
         /// </summary>
         /// <param name="baseUrl">The base URL of the API endpoint.</param>
         /// <param name="resource">The specific resource path to access within the API.</param>
         /// <param name="retryNumber">The number of retry attempts. If a negative value is provided, it defaults to 1.</param>
         /// <param name="retryDelayMs">The delay between retries, in milliseconds.</param>
-
         public RetryClient(string baseUrl, string resource, int retryNumber, int retryDelayMs)
         {
             if (retryDelayMs < 0)
@@ -114,9 +112,9 @@ namespace RESTSchemaRetry
             }
 
             _restApi = new RestApi(baseUrl, resource);
-            this.RetryDelay = new TimeSpan(0, 0, 0, 0, retryDelayMs);
+            this.RetryDelay = TimeSpan.FromMilliseconds(retryDelayMs);
             this.RetryNumber = retryNumber >= 0 ? retryNumber : DefaultRetry;
-            this.DelayType = BackoffTypes.Constant;
+            this.DelayType = BackoffTypes.ExponentialFullJitter;
         }
 
         /// <summary>
@@ -128,7 +126,6 @@ namespace RESTSchemaRetry
         /// <param name="retryNumber">The number of retry attempts. If a negative value is provided, it defaults to 1.</param>
         /// <param name="retryDelayMs">The delay between retries, in milliseconds.</param>
         /// <param name="backoffTypes">The backoff strategy to use for retry delays (e.g., constant, exponential).</param>
-
         public RetryClient(string baseUrl, string resource, int retryNumber, int retryDelayMs, BackoffTypes backoffTypes)
         {
             if (retryDelayMs < 0)
@@ -137,26 +134,25 @@ namespace RESTSchemaRetry
             }
 
             _restApi = new RestApi(baseUrl, resource);
-            this.RetryDelay = new TimeSpan(0, 0, 0, 0, retryDelayMs);
+            this.RetryDelay = TimeSpan.FromMilliseconds(retryDelayMs);
             this.RetryNumber = retryNumber >= 0 ? retryNumber : DefaultRetry;
             this.DelayType = backoffTypes;
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RetryClient"/> class with the specified base URL, resource path, 
-        /// custom retry count, and delay as a <see cref="TimeSpan"/>. Sets a constant delay type for retries.
+        /// custom retry count, and delay as a <see cref="TimeSpan"/>. Sets a ExponentialFullJitter delay type for retries.
         /// </summary>
         /// <param name="baseUrl">The base URL of the API endpoint.</param>
         /// <param name="resource">The specific resource path to access within the API.</param>
         /// <param name="retryNumber">The number of retry attempts. If a negative value is provided, it defaults to 1.</param>
         /// <param name="retryDelay">The delay between retries, as a <see cref="TimeSpan"/>.</param>
-
         public RetryClient(string baseUrl, string resource, int retryNumber, TimeSpan retryDelay)
         {
             _restApi = new RestApi(baseUrl, resource);
             this.RetryDelay = retryDelay;
             this.RetryNumber = retryNumber >= 0 ? retryNumber : DefaultRetry;
-            this.DelayType = BackoffTypes.Constant;
+            this.DelayType = BackoffTypes.ExponentialFullJitter;
         }
 
         /// <summary>
@@ -168,7 +164,6 @@ namespace RESTSchemaRetry
         /// <param name="retryNumber">The number of retry attempts. If a negative value is provided, it defaults to 1.</param>
         /// <param name="retryDelay">The delay between retries, as a <see cref="TimeSpan"/>.</param>
         /// <param name="backoffTypes">The backoff strategy to use for retry delays (e.g., constant, exponential).</param>
-
         public RetryClient(string baseUrl, string resource, int retryNumber, TimeSpan retryDelay, BackoffTypes backoffTypes)
         {
             _restApi = new RestApi(baseUrl, resource);
@@ -196,7 +191,7 @@ namespace RESTSchemaRetry
             _restApi = new RestApi(baseUrl, resource, authToken, defaultHeaders);
             this.RetryNumber = DefaultRetry;
             this.RetryDelay = TimeSpan.FromMilliseconds(retryDelayMs);
-            this.DelayType = BackoffTypes.Constant;
+            this.DelayType = BackoffTypes.ExponentialFullJitter;
         }
 
         /// <summary>
@@ -218,7 +213,7 @@ namespace RESTSchemaRetry
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RetryClient"/> class with the specified base URL, resource path,
-        /// custom retry count, and delay in milliseconds. Sets a constant delay type for retries.
+        /// custom retry count, and delay in milliseconds. Sets a ExponentialFullJitter delay type for retries.
         /// </summary>
         /// <param name="baseUrl">The base URL of the API endpoint.</param>
         /// <param name="resource">The specific resource path to access within the API.</param>
@@ -236,7 +231,7 @@ namespace RESTSchemaRetry
             _restApi = new RestApi(baseUrl, resource, authToken, defaultHeaders);
             this.RetryDelay = TimeSpan.FromMilliseconds(retryDelayMs);
             this.RetryNumber = retryNumber >= 0 ? retryNumber : DefaultRetry;
-            this.DelayType = BackoffTypes.Constant;
+            this.DelayType = BackoffTypes.ExponentialFullJitter;
         }
 
         /// <summary>
@@ -265,7 +260,7 @@ namespace RESTSchemaRetry
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RetryClient"/> class with the specified base URL, resource path, 
-        /// custom retry count, and delay as a <see cref="TimeSpan"/>. Sets a constant delay type for retries.
+        /// custom retry count, and delay as a <see cref="TimeSpan"/>. Sets a ExponentialFullJitter delay type for retries.
         /// </summary>
         /// <param name="baseUrl">The base URL of the API endpoint.</param>
         /// <param name="resource">The specific resource path to access within the API.</param>
@@ -278,7 +273,7 @@ namespace RESTSchemaRetry
             _restApi = new RestApi(baseUrl, resource, authToken, defaultHeaders);
             this.RetryDelay = retryDelay;
             this.RetryNumber = retryNumber >= 0 ? retryNumber : DefaultRetry;
-            this.DelayType = BackoffTypes.Constant;
+            this.DelayType = BackoffTypes.ExponentialFullJitter;
         }
 
         /// <summary>
@@ -407,7 +402,6 @@ namespace RESTSchemaRetry
         /// The delay between retries follows the configured <see cref="BackoffTypes"/> strategy.
         /// </remarks>
         [Obsolete("This method is deprecated. Use the asynchronous version instead.")]
-
         public RestResponse<TResponse> Get<TResponse>() 
             where TResponse : new()
         {
@@ -423,7 +417,6 @@ namespace RESTSchemaRetry
         /// This method retries on transient failures as determined by the <see cref="RetryEngine"/> and retries up to the specified limit. 
         /// The delay between retries follows the configured <see cref="BackoffTypes"/> strategy.
         /// </remarks>
-
         public async Task<RestResponse<TResponse>> GetAsync<TResponse>(CancellationToken cancellationToken = default) 
             where TResponse : new()
         {
@@ -443,7 +436,6 @@ namespace RESTSchemaRetry
         /// The delay between retries follows the configured <see cref="BackoffTypes"/> strategy.
         /// </remarks>
         [Obsolete("This method is deprecated. Use the asynchronous version instead.")]
-
         public RestResponse<TResponse> Get<TResponse>(string paramName, string paramValue) 
             where TResponse : new()
         {
@@ -462,7 +454,6 @@ namespace RESTSchemaRetry
         /// This method retries on transient failures as determined by the <see cref="RetryEngine"/> and retries up to the specified limit. 
         /// The delay between retries follows the configured <see cref="BackoffTypes"/> strategy.
         /// </remarks>
-
         public async Task<RestResponse<TResponse>> GetAsync<TResponse>(string paramName, string paramValue, CancellationToken cancellationToken = default) 
             where TResponse : new()
         {
@@ -479,7 +470,6 @@ namespace RESTSchemaRetry
         /// This method is marked as obsolete and should be replaced with the asynchronous version. It retries on transient failures as determined by the <see cref="RetryEngine"/> 
         /// and continues to retry until the response status code is accepted or the retry limit is reached. The delay between retries follows the configured <see cref="BackoffTypes"/> strategy.
         /// </remarks>
-
         [Obsolete("This method is deprecated. Use the asynchronous version instead.")]
         public RestResponse<TResponse> Get<TResponse>(Dictionary<string, string> paramsKeyValue) 
             where TResponse : new()
@@ -540,7 +530,6 @@ namespace RESTSchemaRetry
         /// This method is marked as obsolete and should be replaced with the asynchronous version. It retries on transient failures as determined by the <see cref="RetryEngine"/> 
         /// and continues to retry until the response status code is accepted or the retry limit is reached. The delay between retries follows the configured <see cref="BackoffTypes"/> strategy.
         /// </remarks>
-
         public async Task<RestResponse<TResponse>> PutAsync<TRequest, TResponse>(TRequest objectToPut, CancellationToken cancellationToken = default) 
             where TRequest : class
             where TResponse : new()
@@ -579,7 +568,6 @@ namespace RESTSchemaRetry
         /// The method will continue to retry until the response status code is accepted or the maximum number of retries is reached.
         /// The delay between retries is governed by the configured <see cref="BackoffTypes"/> strategy.
         /// </remarks>
-
         public async Task<RestResponse<TResponse>> DeleteAsync<TRequest, TResponse>(TRequest objectToDelete, CancellationToken cancellationToken = default) 
             where TRequest : class
             where TResponse : new()
@@ -630,7 +618,10 @@ namespace RESTSchemaRetry
                     }
                 case BackoffTypes.ExponentialWithJitter:
                     {
-                        delaySeconds = RetryDelay.TotalSeconds * Math.Pow(2, retry) * Random.Shared.NextDouble();
+                        double baseSec = Math.Max(0.0, RetryDelay.TotalSeconds);
+                        double capSec = defaultMaxDelay.TotalSeconds;
+                        double maxSec = Math.Min(capSec, baseSec * Math.Pow(2, retry));
+                        delaySeconds = Random.Shared.NextDouble() * maxSec;
                         break;
                     }
                 case BackoffTypes.Random:
@@ -648,9 +639,10 @@ namespace RESTSchemaRetry
                     }
                 case BackoffTypes.ExponentialFullJitter:
                     {
-                        double maxDelay = RetryDelay.TotalSeconds * Math.Pow(2, retry);
-                        double delayWithJitter = Random.Shared.NextDouble() * maxDelay;
-                        delaySeconds = Math.Min(delayWithJitter, defaultMaxDelay.TotalSeconds);
+                        double baseSec = Math.Max(0.0, RetryDelay.TotalSeconds);
+                        double capSec = defaultMaxDelay.TotalSeconds;
+                        double maxSec = Math.Min(capSec, baseSec * Math.Pow(2, retry));
+                        delaySeconds = Random.Shared.NextDouble() * maxSec;
                         break;
                     }
                 default:
@@ -677,7 +669,6 @@ namespace RESTSchemaRetry
         /// <see cref="DelayType"/> strategy. The retry process continues until a successful response is received 
         /// or the maximum retry limit is reached.
         /// </remarks>
-
         [Obsolete("This method is deprecated. Use the asynchronous version instead.")]
         public RestResponse<TResponse> Patch<TRequest, TResponse>(TRequest objectToPatch) 
             where TRequest : class
@@ -700,7 +691,6 @@ namespace RESTSchemaRetry
         /// <see cref="DelayType"/> strategy. The retry process continues until a successful response is received 
         /// (indicated by a status code of HttpStatusCode.Accepted) or the maximum retry limit is reached.
         /// </remarks>
-
         public async Task<RestResponse<TResponse>> PatchAsync<TRequest, TResponse>(TRequest objectToPatch, CancellationToken cancellationToken = default) 
             where TRequest : class
             where TResponse : new()
@@ -721,7 +711,6 @@ namespace RESTSchemaRetry
         /// current <see cref="DelayType"/> strategy. The retry process continues until a successful response is 
         /// received (indicated by a status code of HttpStatusCode.Accepted) or the maximum retry limit is reached.
         /// </remarks>
-
         [Obsolete("This method is deprecated. Use the asynchronous version instead.")]
         public RestResponse<TResponse> Options<TResponse>() 
             where TResponse : new()
@@ -743,7 +732,6 @@ namespace RESTSchemaRetry
         /// current <see cref="DelayType"/> strategy. The retry process continues until a successful response is 
         /// received (indicated by a status code of HttpStatusCode.Accepted) or the maximum retry limit is reached.
         /// </remarks>
-
         public async Task<RestResponse<TResponse>> OptionsAsync<TResponse>(CancellationToken cancellationToken = default) 
             where TResponse : new()
         {
