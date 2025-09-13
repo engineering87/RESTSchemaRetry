@@ -88,9 +88,9 @@ namespace RESTSchemaRetry.Test
         {
             var client = new RetryClient(_baseUrl, _resource);
 
-            Assert.Equal(1, client.RetryNumber);
-            Assert.Equal(TimeSpan.FromSeconds(5), client.RetryDelay);
-            Assert.Equal(BackoffTypes.Constant, client.DelayType);
+            Assert.Equal(3, client.RetryNumber);
+            Assert.Equal(TimeSpan.FromSeconds(1), client.RetryDelay);
+            Assert.Equal(BackoffTypes.ExponentialFullJitter, client.DelayType);
         }
 
         [Fact]
@@ -112,7 +112,7 @@ namespace RESTSchemaRetry.Test
         public void Constructor_NegativeRetryNumber_DefaultsToOne()
         {
             var client = new RetryClient(_baseUrl, _resource, -5, 1000);
-            Assert.Equal(1, client.RetryNumber);
+            Assert.Equal(3, client.RetryNumber);
         }
 
         [Fact]
