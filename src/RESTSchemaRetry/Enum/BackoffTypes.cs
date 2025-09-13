@@ -13,15 +13,15 @@ namespace RESTSchemaRetry.Enum
         Linear,
         ///<summary>Schema-Retry implementation exponential Backoff</summary>
         Exponential,
-        /// <summary>Schema-Retry implementation witch jittered Backoff</summary>
+        /// <summary>Schema-Retry implementation with jittered Backoff</summary>
         ExponentialWithJitter,
-        /// <summary>Schema-Retry implementation witch random Backoff</summary>
+        /// <summary>Schema-Retry implementation with random Backoff</summary>
         Random,
-        /// <summary>Schema-Retry implementation witch Fibonacci Backoff</summary>
+        /// <summary>Schema-Retry implementation with Fibonacci Backoff</summary>
         Fibonacci,
         ///<summary>No retry pattern</summary>
         NoRetry,
-        /// <summary>Schema-Retry implementation witch Exponential Backoff with Full Jitter</summary>
+        /// <summary>Schema-Retry implementation with Exponential Backoff with Full Jitter</summary>
         ExponentialFullJitter
     }
 }
