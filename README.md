@@ -15,16 +15,17 @@ RESTSchemaRetry implements a straightforward retry mechanism with a delay, manag
 The retry mechanism checks the HTTP response code to determine whether the error is transient or not.
 
 ### Transient error recovery
-Below is the list of potentially transient errors handled by RESTSchemaRetry:
-  * TooManyRequests
-  * InternalServerError
-  * BadGateway
-  * ServiceUnavailable
-  * GatewayTimeout
-  * InsufficientStorage
-  * RequestTimeout
-  * HttpVersionNotSupported
-  * NetworkAuthenticationRequired
+The library treats the following HTTP statuses as potentially transient:
+
+- **429** Too Many Requests
+- **500** Internal Server Error
+- **502** Bad Gateway
+- **503** Service Unavailable
+- **504** Gateway Timeout
+- **507** Insufficient Storage
+- **408** Request Timeout
+- **505** HTTP Version Not Supported
+- **511** Network Authentication Required
 
 ### Supported Backoff Types
 
@@ -60,7 +61,7 @@ To use the RESTSchemaRetry library, just create a **RetryClient** specifying the
 There are multiple constructor to specify the REST API parameters.
 
 ```csharp
-var retryClient = new RetryClient("https://example.com/","your-rest-resourse");
+var retryClient = new RetryClient("https://example.com/","your-rest-resource");
 ```
 
 The client supports both default Bearer token authentication and the ability to inject custom headers.
@@ -98,14 +99,14 @@ var response = retryClient.Post<TRequest, TResponse>(objectToPost);
 Alternatively, you can register the library via dependency injection as follows:
 
 ```csharp
-builder.Services.AddRetryClient("https://your-base-url.com", "your-rest-resourse");
+builder.Services.AddRetryClient("https://your-base-url.com", "your-rest-resource");
 ```
 
 RESTSchemaRetry uses the **RestSharp** library to execute the web requests.
 
 ### NuGet Package
 
-The library is available on NuGet packetmanager.
+The library is available on NuGet package manager.
 https://www.nuget.org/packages/RESTSchemaRetry/
 
 ### RestSharp Reference
@@ -121,7 +122,7 @@ If you'd like to contribute, please fork, fix, commit and send a pull request fo
  * [Fork the repository](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo)
  * [Open an issue](https://github.com/engineering87/RESTSchemaRetry/issues) if you encounter a bug or have a suggestion for improvements/features
 
-### Licensee
+### License
 RESTSchemaRetry source code is available under MIT License, see license in the source.
 
 ### Contact
