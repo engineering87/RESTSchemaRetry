@@ -38,4 +38,8 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="RESTSchemaRetry.Test" />
+  </ItemGroup>
+
 </Project>

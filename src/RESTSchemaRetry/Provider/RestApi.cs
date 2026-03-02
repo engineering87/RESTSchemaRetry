@@ -5,6 +5,7 @@ using RESTSchemaRetry.Helper;
 using RESTSchemaRetry.Interfaces;
 using RESTSchemaRetry.Utils;
 using RestSharp;
+using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Threading;
@@ -25,7 +26,7 @@ namespace RESTSchemaRetry.Provider
     /// if (res.IsSuccessful) { var user = res.Data; }
     /// </code>
     /// </example>
-    public class RestApi : IRestApi
+    public class RestApi : IRestApi, IDisposable
     {
         private readonly RestClient _client;
 
@@ -43,9 +44,7 @@ namespace RESTSchemaRetry.Provider
         public RestApi(string baseUrl, string resource)
         {
             (BaseUrl, Resource) = UrlNormalization.Normalize(baseUrl, resource);
-            BaseUrl = baseUrl;
-            Resource = resource;
-            _client = new RestClient(new RestClientOptions(baseUrl));
+            _client = new RestClient(new RestClientOptions(BaseUrl));
         }
 
         /// <summary>
@@ -58,12 +57,10 @@ namespace RESTSchemaRetry.Provider
         public RestApi(string baseUrl, string resource, string authToken = null, Dictionary<string, string> defaultHeaders = null)
         {
             (BaseUrl, Resource) = UrlNormalization.Normalize(baseUrl, resource);
-            BaseUrl = baseUrl;
-            Resource = resource;
             _authToken = authToken;
             _defaultHeaders = defaultHeaders ?? [];
 
-            _client = new RestClient(new RestClientOptions(baseUrl));
+            _client = new RestClient(new RestClientOptions(BaseUrl));
         }
 
         #region Checks
@@ -390,5 +387,12 @@ namespace RESTSchemaRetry.Provider
         }
 
         #endregion
+
+        /// <inheritdoc />
+        public void Dispose()
+        {
+            _client?.Dispose();
+            GC.SuppressFinalize(this);
+        }
     }
 }

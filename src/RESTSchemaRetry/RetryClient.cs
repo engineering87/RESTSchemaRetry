@@ -15,7 +15,7 @@ namespace RESTSchemaRetry
     /// <summary>
     /// REST ApiClient with Schema-Retry implementation
     /// </summary>
-    public sealed class RetryClient : IRetryClient
+    public sealed class RetryClient : IRetryClient, IDisposable
     {
         private readonly RestApi _restApi;
         public int RetryNumber { get; set; }
@@ -149,6 +149,11 @@ namespace RESTSchemaRetry
         /// <param name="retryDelay">The delay between retries, as a <see cref="TimeSpan"/>.</param>
         public RetryClient(string baseUrl, string resource, int retryNumber, TimeSpan retryDelay)
         {
+            if (retryDelay < TimeSpan.Zero)
+            {
+                throw new ArgumentOutOfRangeException(nameof(retryDelay), "Retry delay must be non-negative.");
+            }
+
             _restApi = new RestApi(baseUrl, resource);
             this.RetryDelay = retryDelay;
             this.RetryNumber = retryNumber >= 0 ? retryNumber : DefaultRetry;
@@ -166,6 +171,11 @@ namespace RESTSchemaRetry
         /// <param name="backoffTypes">The backoff strategy to use for retry delays (e.g., constant, exponential).</param>
         public RetryClient(string baseUrl, string resource, int retryNumber, TimeSpan retryDelay, BackoffTypes backoffTypes)
         {
+            if (retryDelay < TimeSpan.Zero)
+            {
+                throw new ArgumentOutOfRangeException(nameof(retryDelay), "Retry delay must be non-negative.");
+            }
+
             _restApi = new RestApi(baseUrl, resource);
             this.RetryDelay = retryDelay;
             this.RetryNumber = retryNumber >= 0 ? retryNumber : DefaultRetry;
@@ -270,6 +280,11 @@ namespace RESTSchemaRetry
         /// <param name="defaultHeaders">Optional dictionary of additional default headers to add to every request.</param>
         public RetryClient(string baseUrl, string resource, int retryNumber, TimeSpan retryDelay, string authToken = null, Dictionary<string, string> defaultHeaders = null)
         {
+            if (retryDelay < TimeSpan.Zero)
+            {
+                throw new ArgumentOutOfRangeException(nameof(retryDelay), "Retry delay must be non-negative.");
+            }
+
             _restApi = new RestApi(baseUrl, resource, authToken, defaultHeaders);
             this.RetryDelay = retryDelay;
             this.RetryNumber = retryNumber >= 0 ? retryNumber : DefaultRetry;
@@ -289,6 +304,11 @@ namespace RESTSchemaRetry
         /// <param name="defaultHeaders">Optional dictionary of additional default headers to add to every request.</param>
         public RetryClient(string baseUrl, string resource, int retryNumber, TimeSpan retryDelay, BackoffTypes backoffTypes, string authToken = null, Dictionary<string, string> defaultHeaders = null)
         {
+            if (retryDelay < TimeSpan.Zero)
+            {
+                throw new ArgumentOutOfRangeException(nameof(retryDelay), "Retry delay must be non-negative.");
+            }
+
             _restApi = new RestApi(baseUrl, resource, authToken, defaultHeaders);
             this.RetryDelay = retryDelay;
             this.RetryNumber = retryNumber >= 0 ? retryNumber : DefaultRetry;
@@ -308,7 +328,7 @@ namespace RESTSchemaRetry
         /// The method retries the operation when transient failures occur, as determined by the <see cref="RetryEngine"/>. 
         /// Delays between retries follow the configured <see cref="BackoffTypes"/> strategy.
         /// </remarks>
-        private async Task<RestResponse<TResponse>> RetryAsync<TResponse>(Func<Task<RestResponse<TResponse>>> action) where TResponse : new()
+        private async Task<RestResponse<TResponse>> RetryAsync<TResponse>(Func<Task<RestResponse<TResponse>>> action, CancellationToken cancellationToken = default) where TResponse : new()
         {
             var response = await action();
 
@@ -317,7 +337,8 @@ namespace RESTSchemaRetry
                    && DelayType != BackoffTypes.NoRetry
                    && retry < this.RetryNumber)
             {
-                await Task.Delay(GetDelay(retry));
+                cancellationToken.ThrowIfCancellationRequested();
+                await Task.Delay(GetDelay(retry), cancellationToken);
                 response = await action();
                 retry++;
             }
@@ -388,7 +409,7 @@ namespace RESTSchemaRetry
             where TRequest : class
             where TResponse : new()
         {
-            return await RetryAsync(() => _restApi.PostAsync<TRequest, TResponse>(objectToPost, cancellationToken));
+            return await RetryAsync(() => _restApi.PostAsync<TRequest, TResponse>(objectToPost, cancellationToken), cancellationToken);
         }
 
         /// <summary>
@@ -420,7 +441,7 @@ namespace RESTSchemaRetry
         public async Task<RestResponse<TResponse>> GetAsync<TResponse>(CancellationToken cancellationToken = default) 
             where TResponse : new()
         {
-            return await RetryAsync(() => _restApi.GetAsync<TResponse>(cancellationToken));
+            return await RetryAsync(() => _restApi.GetAsync<TResponse>(cancellationToken), cancellationToken);
         }
 
         /// <summary>
@@ -457,7 +478,7 @@ namespace RESTSchemaRetry
         public async Task<RestResponse<TResponse>> GetAsync<TResponse>(string paramName, string paramValue, CancellationToken cancellationToken = default) 
             where TResponse : new()
         {
-            return await RetryAsync(() => _restApi.GetAsync<TResponse>(paramName, paramValue, cancellationToken));
+            return await RetryAsync(() => _restApi.GetAsync<TResponse>(paramName, paramValue, cancellationToken), cancellationToken);
         }
 
         /// <summary>
@@ -497,7 +518,7 @@ namespace RESTSchemaRetry
             where TResponse : new()
         {
             var qp = paramsKeyValue ?? [];
-            return await RetryAsync(() => _restApi.GetAsync<TResponse>(qp, cancellationToken));
+            return await RetryAsync(() => _restApi.GetAsync<TResponse>(qp, cancellationToken), cancellationToken);
         }
 
         /// <summary>
@@ -534,7 +555,7 @@ namespace RESTSchemaRetry
             where TRequest : class
             where TResponse : new()
         {
-            return await RetryAsync(() => _restApi.PutAsync<TRequest, TResponse>(objectToPut, cancellationToken));
+            return await RetryAsync(() => _restApi.PutAsync<TRequest, TResponse>(objectToPut, cancellationToken), cancellationToken);
         }
 
         /// <summary>
@@ -572,7 +593,7 @@ namespace RESTSchemaRetry
             where TRequest : class
             where TResponse : new()
         {
-            return await RetryAsync(() => _restApi.DeleteAsync<TRequest, TResponse>(objectToDelete, cancellationToken));
+            return await RetryAsync(() => _restApi.DeleteAsync<TRequest, TResponse>(objectToDelete, cancellationToken), cancellationToken);
         }
 
         /// <summary>
@@ -620,8 +641,9 @@ namespace RESTSchemaRetry
                     {
                         double baseSec = Math.Max(0.0, RetryDelay.TotalSeconds);
                         double capSec = defaultMaxDelay.TotalSeconds;
-                        double maxSec = Math.Min(capSec, baseSec * Math.Pow(2, retry));
-                        delaySeconds = Random.Shared.NextDouble() * maxSec;
+                        double exponentialSec = Math.Min(capSec, baseSec * Math.Pow(2, retry));
+                        double jitter = Random.Shared.NextDouble() * baseSec;
+                        delaySeconds = exponentialSec + jitter;
                         break;
                     }
                 case BackoffTypes.Random:
@@ -695,7 +717,7 @@ namespace RESTSchemaRetry
             where TRequest : class
             where TResponse : new()
         {
-            return await RetryAsync(() => _restApi.PatchAsync<TRequest, TResponse>(objectToPatch, cancellationToken));
+            return await RetryAsync(() => _restApi.PatchAsync<TRequest, TResponse>(objectToPatch, cancellationToken), cancellationToken);
         }
 
         /// <summary>
@@ -735,7 +757,7 @@ namespace RESTSchemaRetry
         public async Task<RestResponse<TResponse>> OptionsAsync<TResponse>(CancellationToken cancellationToken = default) 
             where TResponse : new()
         {
-            return await RetryAsync(() => _restApi.OptionsAsync<TResponse>(cancellationToken));
+            return await RetryAsync(() => _restApi.OptionsAsync<TResponse>(cancellationToken), cancellationToken);
         }
 
         /// <summary>
@@ -771,7 +793,13 @@ namespace RESTSchemaRetry
             where TResponse : new()
         {
             var qp = queryParams ?? [];
-            return await RetryAsync(() => _restApi.HeadAsync<TResponse>(qp, cancellationToken));
+            return await RetryAsync(() => _restApi.HeadAsync<TResponse>(qp, cancellationToken), cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public void Dispose()
+        {
+            _restApi?.Dispose();
         }
     }
 }
